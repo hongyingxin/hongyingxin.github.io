@@ -2,7 +2,7 @@ name: Deploy VitePress site to Pages
 
 on:
   push:
-    branches: [main] # 根据您的默认分支修改，可能是 master
+    branches: [master] # 如果您的默认分支是 master 或其他名称，需要在这里修改
   workflow_dispatch: # 允许手动触发部署
 
 # 设置 GITHUB_TOKEN 的权限
