@@ -13,7 +13,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "vitepress": "^1.5.0",
-    "vue": "^3.4.0"
+    "vitepress": "^1.0.0-rc.44",
+    "vue": "^3.4.21"
   }
 }

@@ -10,7 +10,7 @@ hero:
       link: /articles/
     - theme: alt
       text: GitHub
-      link: https://github.com/你的用户名
+      link: https://github.com/hongyingxin
 features:
   - title: 技术分享
     details: 分享编程技术和经验
