@@ -17,16 +17,5 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/hongyingxin' }
     ],
-
-    // 首页配置
-    // home: {
-    //   name: '洪英鑫的博客',
-    //   text: '个人技术博客',
-    //   tagline: '分享技术，记录生活',
-    //   actions: [
-    //     { text: '开始阅读', link: '/articles/', theme: 'brand' },
-    //     { text: '了解更多', link: '/about', theme: 'alt' }
-    //   ]
-    // }
   }
 })
