@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  base: 'hongyingxin.github.io',
+  base: '/',
   title: "我的博客",
   description: "我的个人博客网站",
   
