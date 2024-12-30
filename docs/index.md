@@ -1,21 +1,14 @@
 ---
 layout: home
-hero:
-  name: 我的博客
-  text: 分享技术与生活
-  tagline: 记录、分享、成长
-  actions:
-    - theme: brand
-      text: 开始阅读
-      link: /articles/
-    - theme: alt
-      text: GitHub
-      link: https://github.com/hongyingxin
-features:
-  - title: 技术分享
-    details: 分享编程技术和经验
-  - title: 生活随笔
-    details: 记录生活点滴
-  - title: 学习笔记
-    details: 持续学习，持续进步
+title: 三寸光阴一个鑫
+description: 个人技术博客
 ---
+
+# 欢迎来到我的博客
+
+这是一个分享技术与生活的地方。在这里，你可以找到关于前端开发的学习笔记、每日一面的问题和解答，以及我的个人随笔。
+
+## 最新文章
+
+- [文章1](./articles/article1.md)
+- [文章2](./articles/article2.md)
