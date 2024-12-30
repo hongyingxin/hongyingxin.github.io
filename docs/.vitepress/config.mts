@@ -1,6 +1,29 @@
-import { defineConfig } from 'vitepress'
+// import { defineConfig } from 'vitepress'
+
+// 导入生成配置工具方法
+import { defineConfig, getThemeConfig } from '@sugarat/theme/node'
+
+// 主题独有配置，所有配置项，详见文档: https://theme.sugarat.top/
+const blogThemeConfig = getThemeConfig({
+  // 关闭搜索
+  search: false,
+  // 关闭深色模式过渡动画
+  darkTransition: false,
+  // 友情链接
+  friend: [
+    {
+      nickname: '粥里有勺糖',
+      des: '你的指尖用于改变世界的力量',
+      avatar:
+        'https://img.cdn.sugarat.top/mdImg/MTY3NDk5NTE2NzAzMA==674995167030',
+      url: 'https://sugarat.top'
+    },
+  ]
+})
 
 export default defineConfig({
+  // 继承博客主题配置
+  extends: blogThemeConfig,
   base: '/',
   title: "三寸光阴一个鑫",
   description: "个人技术博客",

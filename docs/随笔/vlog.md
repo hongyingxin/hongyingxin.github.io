@@ -1,3 +1,7 @@
+---
+sticky: 1
+---
+
 # 搭建个人博客
 
 最近一直想搭建一个属于自己的博客，既能记录学习过程，也能当做简历的一个亮点。静态站点主要有 Hexo、Hugo、VuePress、VitePress 等。作为一个 Vue 技术栈的开发者，我主要对比了 VuePress 和 VitePress 这两个框架。

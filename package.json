@@ -13,7 +13,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "sass-embedded": "^1.83.0",
     "vitepress": "^1.0.0-rc.44",
     "vue": "^3.4.21"
+  },
+  "dependencies": {
+    "@sugarat/theme": "^0.5.3"
   }
 }
