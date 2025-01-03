@@ -37,6 +37,7 @@ export default defineConfig({
         items: [
           { text: '搭建个人博客', link: '/随笔/vlog.md' },
           { text: '翻译导出工具', link: '/随笔/excel.md' },
+          { text: '组件库开发指南', link: '/随笔/组件库开发指南.md' },
         ]
       },
       { text: '每日一面', 
