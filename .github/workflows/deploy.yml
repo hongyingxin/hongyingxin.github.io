@@ -35,12 +35,14 @@ jobs:
       
       - name: Install dependencies
         run: |
+          export TZ='Asia/Shanghai'
           rm -rf node_modules package-lock.json
           npm install
           npm install @rollup/rollup-linux-x64-gnu
       
       - name: Build with VitePress
         run: |
+          export TZ='Asia/Shanghai'
           npm run docs:build
           touch docs/.vitepress/dist/.nojekyll
       
@@ -60,6 +62,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
+      
       - name: Check Current Time
-        run: date
+        run: |
+          export TZ='Asia/Shanghai'
+          date
