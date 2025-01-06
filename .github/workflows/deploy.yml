@@ -28,7 +28,10 @@ jobs:
           cache: npm
       
       - name: Set Timezone
-        run: echo "TZ='Asia/Shanghai'" >> $GITHUB_ENV
+        run: |
+          echo "TZ='Asia/Shanghai'" >> $GITHUB_ENV
+          echo "Current Timezone: $TZ"
+          date
       
       - name: Install dependencies
         run: |
