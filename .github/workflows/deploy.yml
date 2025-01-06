@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -67,3 +69,7 @@ jobs:
         run: |
           export TZ='Asia/Shanghai'
           date
+
+      - name: Check File Git Info
+        run: |
+          git log -1 -- <file_name>
