@@ -27,14 +27,14 @@ jobs:
           node-version: 18
           cache: npm
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Set Timezone
+        run: echo "TZ='Asia/Shanghai'" >> $GITHUB_ENV
       
       - name: Install dependencies
         run: |
           rm -rf node_modules package-lock.json
           npm install
-          npm install @rollup/rollup-linux-x64-gnu  # 显式安装这个依赖
+          npm install @rollup/rollup-linux-x64-gnu
       
       - name: Build with VitePress
         run: |
