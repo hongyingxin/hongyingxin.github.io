@@ -70,6 +70,6 @@ jobs:
           export TZ='Asia/Shanghai'
           date
 
-      - name: Check File Git Info
-        run: |
-          git log -1 -- <file_name>
+      # - name: Check File Git Info
+      #   run: |
+      #     git log -1 -- <file_name>
