@@ -123,19 +123,19 @@ self.addEventListener("fetch", (event) => {
 
 ### 1. 仅缓存
 
-![Excel Image](assets/w_1.png)
+![Excel Image](../public/assets/w_1.png)
 
 当 Service Worker 控制页面时，匹配的请求只会进入缓存。这意味着，所有缓存的资源都需要先预缓存，然后才能使用该模式。在更新 Service Worker 之前，这些资源永远不会在缓存中更新。
 
 ### 2. 仅网络
 
-![Excel Image](assets/w_2.png)
+![Excel Image](../public/assets/w_2.png)
 
 这种与仅缓存相反，请求通过 Service Worker 传递到网络，而无需与 Service Worker 缓存进行任何交互。当用户离线时，此方法将始终无效。
 
 ### 3. 先缓存，然后回退到网络
 
-![Excel Image](assets/w_3.png)
+![Excel Image](../public/assets/w_3.png)
 
 这是一个绝佳的策略，适用于所有静态资源（例如 CSS、JavaScript、图片和字体），尤其是采用哈希技术的算法。它通过绕过 HTTP 缓存可能启动的任何服务器的内容新鲜度检查，来提高不可变资源的速度。更重要的是，所有缓存的资源都将可以离线使用。
 
@@ -147,7 +147,7 @@ self.addEventListener("fetch", (event) => {
 
 ### 4. 网络优先，回退到缓存
 
-![Excel Image](assets/w_4.png)
+![Excel Image](../public/assets/w_4.png)
 
 此策略非常适合存在以下情况的 HTML 或 API 请求：在线时，您需要的是资源的最新版本，但您想让其离线访问的是最新可用版本。
 
@@ -158,7 +158,7 @@ self.addEventListener("fetch", (event) => {
 
 ### 5. 过时重新验证
 
-![Excel Image](assets/w_5.png)
+![Excel Image](../public/assets/w_5.png)
 
 在到目前为止我们介绍过的策略中，是最复杂的。从某些方面来看，它与后两种策略类似，但该过程会优先考虑对资源的访问速度，同时在后台保持最新状态。这个策略非常适合需要更新的一些重要信息，但并非至关重要。想像一下社交媒体网站的头像。这些信息会在用户进行适当操作时进行更新，但并非每个请求都绝对要求使用最新版本。
 
@@ -172,11 +172,11 @@ self.addEventListener("fetch", (event) => {
 
 Application 面板中的 Service Workers 标签页是 DevTools 中检查和调试服务工作线程的主要位置。
 
-![Excel Image](assets/w_6.png)
+![Excel Image](../public/assets/w_6.png)
 
 Cache Storage 标签页提供了一个已使用（服务工作线程）Cache API 缓存的只读资源列表。
 
-![Excel Image](assets/w_7.png)
+![Excel Image](../public/assets/w_7.png)
 
 ## 拓展
 
