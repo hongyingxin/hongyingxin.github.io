@@ -35,9 +35,8 @@ export default defineConfig({
       { text: '首页', link: '/' },
       { text: '随笔', 
         items: [
-          { text: '搭建个人博客', link: '/随笔/vlog.md' },
-          { text: '翻译导出工具', link: '/随笔/excel.md' },
-          { text: '组件库开发指南', link: '/随笔/组件库开发指南.md' },
+          { text: '组件库', link: '/components/index.md' },
+          { text: 'Git', link: '/git/index.md' },
         ]
       },
       { text: '每日一面', 

@@ -4,7 +4,7 @@ tag:
 ---
 
 
-# 使用 Husky、Commitlint 和 Commitizen 规范 Git 提交记录
+# Git 规范提交记录
 
 在团队协作中，保持一致的提交记录格式有助于提高代码库的可读性和可维护性。Husky、Commitlint 和 Commitizen 是三个强大的工具，可以帮助我们在提交代码时自动检查和生成符合规范的提交信息。
 
