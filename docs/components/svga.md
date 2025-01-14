@@ -19,7 +19,7 @@ SVGAPlayer-Web是一个开源项目，主要由JavaScript编写，旨在为Web�
 <details>
   <summary>点击查看思维导图</summary>
 
-  ![SVGA 思维导图](assets/svga_1.png)
+  ![SVGA 思维导图](../public/assets/svga_1.png)
 
 </details>
 
