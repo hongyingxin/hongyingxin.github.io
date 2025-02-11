@@ -72,7 +72,7 @@ useEffect在每次渲染的时候都会执行。如果想执行只运行一次�
 
 ## useRef
 ```javascript
-const ref = useRef(initiaValue)
+const ref = useRef(initialValue)
 ```
 
 useRef返回一个可变的ref对象，.current属性被初始化为传入的参数(initialValue)。返回的ref对象在组件的整个生命周期内保持不变。
