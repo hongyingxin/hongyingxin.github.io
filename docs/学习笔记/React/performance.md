@@ -44,7 +44,7 @@ memo(Component, arePropsEqual?)
 ### 在每个地方都应该添加memo吗？
 如果传递给组件的props是一个对象或者普通函数，则memo是完全无用的。这就是为什么需要在memo中同时使用`useMemo`和`useCallback`。
 
-**`useCallback`** 能缓存函数，配合**`memo`**。
+**`useCallback`** 能缓存函数，配合 **`memo`**。
 
 ## useCallback()
 **`useCallback`** 是一个允许在多次渲染中缓存函数的React Hook。
