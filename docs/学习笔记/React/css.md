@@ -232,6 +232,8 @@ export default Component;
 
 ## 总结
 
+个人倾向于Sass，因为活动页面需要大量的CSS样式，而Tailwind需要大量自定义配置。Sass目前主要有个问题，就是样式隔离。vue中因为有scoped，所以可以很好的隔离样式，但是react中没有，所以需要手动去隔离。目前我采用BEM的命名方式，并且结合了嵌套选择器，来隔离样式。
+
 - **小型项目:** 可以考虑使用 CSS Modules 或原生 CSS。
 - **中型项目:** Styled Components 或 Emotion 是不错的选择。
 - **大型项目:** Sass/SCSS 或 Tailwind CSS 可以提供更好的可维护性和一致性。
