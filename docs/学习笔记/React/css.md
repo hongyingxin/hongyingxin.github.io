@@ -1,6 +1,6 @@
 # CSS 方案
 
-## CSS Modules
+## 1. CSS Modules
 
 **概述:** CSS Modules 是一种将 CSS 文件模块化的方式。每个 CSS 文件都被视为一个模块，类名会被自动生成唯一的标识符，避免全局命名冲突。
 
@@ -38,7 +38,7 @@ export default Component;
 
 ---
 
-## Styled Components
+## 2. Styled Components
 
 **概述:** Styled Components 是一种 CSS-in-JS 解决方案，允许你在 JavaScript 文件中定义样式。它使用标签模板字面量来创建样式化的组件。
 
@@ -74,7 +74,7 @@ export default Component;
 
 ---
 
-## Emotion
+## 3. Emotion
 
 **概述:** Emotion 是另一个流行的 CSS-in-JS 库，提供了更灵活的 API 和更高的性能。
 
@@ -110,7 +110,7 @@ export default Component;
 
 ---
 
-## Sass/Scss/Less
+## 4. Sass/Scss/Less
 
 **概述:** Sass/Scss/Less 是一种 CSS 预处理器，提供了变量、嵌套、混合等功能，增强了 CSS 的功能性。
 
@@ -158,7 +158,7 @@ export default Component;
 
 ---
 
-## Tailwind CSS
+## 5. Tailwind CSS
 
 **概述:** Tailwind CSS 是一种实用的 CSS 框架，提供了大量的类来快速构建 UI，而不是编写自定义 CSS。
 
@@ -191,7 +191,7 @@ export default Component;
 
 ---
 
-## 原生 CSS
+## 6. 原生 CSS
 
 **概述:** 使用标准的 CSS 文件来定义样式，适合简单的项目。
 
@@ -232,7 +232,7 @@ export default Component;
 
 ## 总结
 
-个人倾向于Sass，因为活动页面需要大量的CSS样式，而Tailwind需要大量自定义配置。Sass目前主要有个问题，就是样式隔离。vue中因为有scoped，所以可以很好的隔离样式，但是react中没有，所以需要手动去隔离。目前我采用BEM的命名方式，并且结合了嵌套选择器，来隔离样式。
+个人倾向于Sass，因为活动页面需要大量的CSS样式，而Tailwind需要大量自定义配置,Css in Js和Css Modules需要引入一个变量，运行开销大阅读性差，增加开发的心智负担。Sass目前主要有个问题，就是样式隔离。vue中因为有scoped，所以可以很好的隔离样式，但是react中没有，所以需要手动去隔离。目前我采用BEM的命名方式，并且结合了嵌套选择器，来隔离样式。
 
 - **小型项目:** 可以考虑使用 CSS Modules 或原生 CSS。
 - **中型项目:** Styled Components 或 Emotion 是不错的选择。
