@@ -37,6 +37,7 @@ export default defineConfig({
         items: [
           { text: '组件库', link: '/components/index.md' },
           { text: 'Git', link: '/git/index.md' },
+          { text: 'React后管', link: '/学习笔记/React后管/' }
         ]
       },
       { text: '每日一面', 
@@ -52,7 +53,7 @@ export default defineConfig({
           { text: 'JavaScript', link: '/学习笔记/JavaScript/' },
           { text: 'React', link: '/学习笔记/React/' },
           { text: 'Vue', link: '/学习笔记/Vue/' },
-          { text: 'TypeScript', link: '/学习笔记/TypeScript' }
+          { text: 'TypeScript', link: '/学习笔记/TypeScript' },
         ]
       }
     ],
