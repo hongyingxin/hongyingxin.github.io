@@ -1,4 +1,5 @@
 # React 后管
+项目地址：[react-admin](https://github.com/hongyingxin/react-admin)
 
 这是一个React后管实战项目,一款基于 React18、React-RouterV6、React-Hooks、Redux-Toolkit、Zustand、TypeScript、Vite5、Ant-Design5 的后台管理框架。后续会持续更新这个项目的教程文章。
 
