@@ -12,3 +12,24 @@ npm install
 
 npm run dev
 ```
+
+## 2. 安装依赖
+```bash
+# 路由
+npm install react-router-dom
+
+# 状态管理
+npm install @reduxjs/toolkit react-redux
+
+# UI 框架
+npm install antd @ant-design/icons
+
+# 网络请求
+npm install axios
+
+# 国际化
+npm install i18next react-i18next
+
+# 工具库
+npm install dayjs
+```
