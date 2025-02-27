@@ -1,4 +1,4 @@
-# React后管项目初始化
+# （一）：项目初始化与目录结构
 
 ## 1. 项目初始化
 选择一个文件夹目录，打开终端，输入以下命令，使用Vite创建一个名为 react-admin 的 React 项目，并使用 TypeScript 模板。
@@ -22,7 +22,7 @@ npm install react-router-dom
 npm install @reduxjs/toolkit react-redux
 
 # UI 框架
-npm install antd @ant-design/icons
+npm install antd --save
 
 # 网络请求
 npm install axios
@@ -32,4 +32,69 @@ npm install i18next react-i18next
 
 # 工具库
 npm install dayjs
+```
+
+## 3. 创建目录结构
+
+删除src目录下多余的文件，我们将重新组织项目结构
+
+```bash
+src/
+├─api                # API 接口
+├─assets             # 静态资源
+├─components         # 公共组件
+├─config             # 全局配置
+├─context            # 上下文数据
+├─enums              # 枚举值
+├─hooks              # 全局hook
+├─languages          # 多语言配置
+├─layouts            # 布局文件
+├─redux              # 状态管理
+├─routers            # 路由配置
+├─styles             # 样式文件
+├─typings            # 类型定义
+├─utils              # 工具函数
+└─views              # 页面文件
+```
+
+1. **入口文件**
+```typescript
+// src/main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+```
+2. **APP 组件**
+```typescript
+import React from 'react';
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+
+const App: React.FC = () => {
+  return (
+    <ConfigProvider locale={zhCN}>
+      <div>React Admin</div>
+    </ConfigProvider>
+  )
+}
+
+export default App;
+```
+
+## 4.运行项目
+```bash
+# 开发环境
+npm run dev
+
+# 打包
+npm run build
+
+# 预览打包结果
+npm run preview
 ```
