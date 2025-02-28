@@ -8,7 +8,9 @@ export interface ResultData<T = any> extends Result {
 // Unexpected any. Specify a different type.
 ```
 解决方法：
+
 TypeScript使用 any 会绕过类型检查，所以默认是禁止的
+
 在eslint.config.js新增这条配置
 ```javascript
 rules: {
@@ -22,7 +24,9 @@ import { message } from "@/hooks/useMessage";
 // 找不到模块“@/hooks/useMessage”或其相应的类型声明
 ```
 解决方法：
+
 在vite.config.ts中添加路径别名配置
+
 在tsconfig.app.json中添加路径别名配置
 
 ```bash
