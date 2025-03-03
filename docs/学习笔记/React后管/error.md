@@ -19,6 +19,7 @@ rules: {
 ```
 
 ## @路径符号报错
+
 ```javascript
 import { message } from "@/hooks/useMessage";
 // 找不到模块“@/hooks/useMessage”或其相应的类型声明
@@ -53,3 +54,13 @@ export default defineConfig({
   "@/*": ["src/*"]
 }
 ```
+
+## 下载了npm install @reduxjs/toolkit，还有必要安装react-redux
+
+1. @reduxjs/toolkit 和 react-redux 是两个不同的包：
+ - @reduxjs/toolkit: 提供 Redux 的核心功能，简化 Redux 的使用
+ - react-redux: 提供 React 组件和 hooks 来连接 Redux 和 React 应用
+2. 即使使用 @reduxjs/toolkit，你仍然需要：
+ - Provider 组件来包裹应用
+ - useSelector 和 useDispatch hooks 来访问状态
+ - 其他 React 相关的 Redux 功能
