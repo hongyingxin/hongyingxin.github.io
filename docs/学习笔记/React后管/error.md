@@ -64,3 +64,7 @@ export default defineConfig({
  - Provider 组件来包裹应用
  - useSelector 和 useDispatch hooks 来访问状态
  - 其他 React 相关的 Redux 功能
+
+ ## 页面刷新404报错
+
+ 
