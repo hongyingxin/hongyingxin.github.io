@@ -371,3 +371,4 @@ npm install package-name --save
 - `--save-dev` / `-D` 保存到 `devDependencies`
 
 npm v5+已经默认会保存到 `dependencies`，以上的命令变得多余。
+
