@@ -104,3 +104,20 @@ BFC 具有以下应用场景：
 | `clip-path` 或 `transform`  | 通过裁剪或变换将元素隐藏。                                   | 是       | 是         | ```css .hidden { clip-path: inset(50%); } ``` |
 | `height: 0; overflow: hidden;` | 将元素高度设置为 0，并隐藏溢出内容。                       | 否       | 否         | ```css .hidden { height: 0; overflow: hidden; } ``` |
 | 使用 `media queries`        | 根据条件隐藏元素。                                          | 取决于条件 | 取决于条件 | ```css @media (max-width: 600px) { .hidden { display: none; } } ``` |
+
+
+## 7. :root
+
+:root是CSS中的一个伪类，代表文档树的根元素。在HTML中，根元素通常是`<html>`元素。使用:root伪类可以针对整个文档的根元素进行样式定义，它在优先级上比直接选择器更高，因此常用于定于全局变量或全局样式。
+
+**场景**：
+1. 定义全局CSS变量：这是:root最常见的用途，可以让变量在整个文档中可用；
+2. 全局样式重置：可以用来定义一些需要在整个文档中应用的全局样式；
+3. 提高优先级：由于:root伪类的优先级比较高，有时可以用来覆盖其他选择器定义的样式。
+
+**使用**：
+```css
+:root {
+    --primary-color: #007bff;
+}
+```
