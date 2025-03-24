@@ -46,7 +46,8 @@ export default defineConfig({
           { text: 'CSS', link: '/每日一面/CSS/' },
           { text: 'Vue', link: '/每日一面/Vue/' },
           { text: 'React', link: '/每日一面/React/' },
-          { text: '网络', link: '/每日一面/网络/' }
+          { text: '网络', link: '/每日一面/网络/' },
+          { text: '工程化', link: '/每日一面/工程化/' }
         ]
       },
       { text: '学习笔记',
