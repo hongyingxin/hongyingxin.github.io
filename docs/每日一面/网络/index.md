@@ -188,7 +188,91 @@ const csp = "default-src 'self'; script-src 'self' https://apis.google.com; img-
 document.querySelector('meta[http-equiv="Content-Security-Policy"]').setAttribute('content', csp);
 ```
 
-## 浏览器渲染过程
+## 什么是 XSS 攻击？
 
-浏览器渲染过程可以分为以下几个步骤：
+XSS（Cross-Site Scripting）跨站脚本攻击，是一种代码注入攻击。攻击者通过在目标网站上注入恶意脚本，使之在用户的浏览器上运行，从而获取用户的敏感信息如 Cookie、Session 等。
 
+1. **XSS 类型**
+
+存储型：恶意代码存储在数据库中，用户访问页面时从数据库加载。
+
+反射型：恶意代码存在 URL 中，服务器接收后返回给浏览器解析。
+
+DOM型：恶意代码通过 DOM 操作方式修改页面内容。
+
+2. **防范措施**
+
+输入过滤：对用户输入的内容进行特殊字符过滤。
+
+输出转义：显示内容时对特殊字符进行 HTML 实体编码。
+
+CSP策略：限制加载其他域名的资源文件，禁止向第三方域名请求数据。
+
+HttpOnly：Cookie 设置 HttpOnly 属性，禁止 JavaScript 读取。
+
+3. **具体实现**
+```javascript
+// 转义 HTML 字符
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, match => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[match]);
+}
+
+// CSP 配置
+Content-Security-Policy: default-src 'self'
+
+// Cookie 设置
+Set-Cookie: name=value; HttpOnly
+```
+
+### 扩展：
+现代框架（如 React、Vue）默认会转义输出的内容，但使用 dangerouslySetInnerHTML（React）或 v-html（Vue）时要特别注意 XSS 风险。
+
+## 什么是 CSRF 攻击？
+
+CSRF 攻击指的是请求伪造攻击，攻击者诱导用户进入一个第三方网站，然后该网站向被攻击网站发送跨站请求。如果用户在被攻击网站中保存了登录状态，那么攻击者就可以利用这个登录状态，绕过后台的用户验证，冒充用户向服务器执行一些操作。
+
+1. **攻击原理**
+
+用户登录了 A 网站，获取了 Cookie。用户访问攻击者的 B 网站，B 网站发起一个伪造请求到 A 网站。A 网站收到请求后，因为携带了用户的 Cookie，认为是用户本人的操作。
+
+2. **防范措施**
+
+Token 验证：服务器生成随机 Token，每次请求都要验证。
+
+Referer 校验：检查请求来源是否合法。
+
+SameSite Cookie：限制 Cookie 在跨站请求时的发送。
+
+双重 Cookie：请求时需要在请求参数中携带 Cookie 中的值。
+
+3. **具体实现**
+```javascript
+// 服务端生成 Token
+const token = generateToken();
+ctx.cookies.set('csrfToken', token);
+
+// 前端请求时携带 Token
+axios.post('/api/data', data, {
+    headers: {
+        'X-CSRF-Token': token
+    }
+});
+
+// Cookie 设置 SameSite
+Set-Cookie: name=value; SameSite=Strict
+
+// Referer 校验
+const referer = ctx.request.headers.referer;
+if (!referer || !referer.startsWith('https://example.com')) {
+    ctx.throw(403);
+}
+```
+
+### 扩展：
+CSRF 和 XSS 的区别：XSS 是获取用户的信息，CSRF 是伪造用户的操作。XSS 需要向页面注入脚本，CSRF 不需要注入脚本。
