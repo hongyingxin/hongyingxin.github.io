@@ -152,3 +152,43 @@ www.example.com是域名，域名通常用于代替复杂的IP地址
 **锚点**
 
 #SomewhereInTheDocument是资源本身的一部分锚点，类似于书签。
+
+## CDN 服务
+
+CDN 内容分发网络是一种分布式的服务器系统，通过将内容缓存到地理位置分散的服务器上来加速网站的加载速度和性能。CDN的主要目标是通过将内容传送给离用户最近的服务器来减少网络延迟和提高网站的响应速度。
+### 原理：
+**内容缓存**：CDN提供商在全球各地部署多个节点服务器，称为边缘服务器。网站的静态内容会被缓存到这些边缘服务器上
+
+**请求路由**：当用户访问一个使用CDN的网站时，用户的请求会被路由到离用户最近的CDN边缘服务器上（通过DNS重定向机制实现）
+
+## CORS 跨域资源共享
+
+跨源资源共享是一种基于Http头的机制，用于使网页能够向其他源（域、协议、端口）发出跨域请求，从而在不同源之间共享资源。跨源资源共享还通过一种机制来检查服务器是否会允许要发送的真实请求，该机制通过浏览器发起一个到服务器的跨源资源的“预检”请求。
+
+CORS机制通过在Http头部中使用一些特定的字段，使服务器能够告知浏览器是否允许跨域请求。
+- **Access-Control-Allow-Origin**: 指定了允许访问该资源的源，可以是单个源或者使用通配符 * 表示允许来自任何源的请求。
+- **Access-Control-Allow-Methods**: 指定了允许的 HTTP 方法，例如 GET、POST 等。
+- **Access-Control-Allow-Headers**: 指定了允许的 HTTP 头部信息。
+
+
+## CSP 内容安全策略
+
+CSP 指的是内容安全策略，用来检测并削弱某些特定类型的攻击，包括跨站脚本（XSS）和数据注入攻击等。它的本质是建立一个白名单，告诉浏览器哪些外部资源可以加载和执行。我们只需要配置规则，如何拦截由浏览器自己来实现。
+通常有两种方式来开启 CSP，一种是设置 meta 标签的方式 <meta http-equiv="Content-Security-Policy">，一种是设置 HTTP 首部中的 Content-Security-Policy。
+
+```html
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://apis.google.com; img-src 'self' https://lh3.googleusercontent.com">
+```
+
+```js
+// 设置 CSP 规则
+const csp = "default-src 'self'; script-src 'self' https://apis.google.com; img-src 'self' https://lh3.googleusercontent.com";
+
+// 设置 CSP 规则
+document.querySelector('meta[http-equiv="Content-Security-Policy"]').setAttribute('content', csp);
+```
+
+## 浏览器渲染过程
+
+浏览器渲染过程可以分为以下几个步骤：
+
