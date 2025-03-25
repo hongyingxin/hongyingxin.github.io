@@ -6,6 +6,7 @@
 
 - [HTML](/每日一面/HTML/index.md)
 - [CSS](/每日一面/CSS/index.md)
+- [JavaScript](/每日一面/JavaScript/index.md)
 - [Vue](/每日一面/Vue/index.md)
 - [React](/每日一面/React/index.md)
 - [网络](/每日一面/网络/index.md)
