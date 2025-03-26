@@ -9,7 +9,7 @@
 - 使用 Vite5 作为开发、打包工具（配置 Gzip | Brotli 压缩打包、PWA 应用、Visualizer 包分析…）
 - 使用 React-RouterV6 全新路由钩子，项目支持多路由（Hash | History）切换、路由懒加载配置
 - 项目菜单、路由权限使用 **动态路由** 控制，完全根据后端菜单数据动态生成路由
-- 使用 Redux-Toolkit、Zustand 作为状态管理工具（多分支），集成 persist 持久化工具
+- 使用 Redux-Toolkit作为状态管理工具，集成 persist 持久化工具
 - 使用 Ant-Design 5 组件库开发，将 Design Token 注入到 CSS 变量中，方便配置项目主题
 - 项目支持多主题：主题颜色、暗黑模式、灰色模式、色弱模式、紧凑主题、圆角大小配置
 - 项目支持多布局：横向布局、经典布局（可开启菜单分割功能）、纵向布局、分栏布局配置
