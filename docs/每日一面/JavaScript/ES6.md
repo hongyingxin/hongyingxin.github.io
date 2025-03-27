@@ -222,3 +222,55 @@ const obj = { name: 'Object' };
 arrow.call(obj); // 不会指向obj，仍然是定义时的this
 ```
 
+## Set和Map
+
+### Set
+
+Set 类似于数组，但是成员的值都是唯一的，没有重复的值。
+
+#### 基本用法
+
+```javascript
+// 创建Set
+const set = new Set([1, 2, 3, 4, 5]);
+// 获取Set的大小
+set.size;
+// 添加元素
+set.add(6);
+// 删除元素
+set.delete(3);
+// 检查元素是否存在
+set.has(2);
+// 清空Set
+set.clear();
+// 遍历Set
+for (let item of set.keys()) {
+  console.log(item);
+}
+for (let item of set.values()) {
+  console.log(item);
+}
+for (let item of set.entries()) {
+  console.log(item);
+}
+```
+
+#### 应用场景
+
+1. 数组去重
+2. 集合运算（交集、并集、差集）
+3. 数据存储
+
+### Map
+
+Map 类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。
+
+## WeakSet和WeakMap
+
+### WeakSet
+
+WeakSet 是 Set 的变体，它只存储对象的弱引用，不能存储原始值。
+
+### WeakMap
+
+WeakMap 是 Map 的变体，它只存储对象的弱引用，不能存储原始值。
