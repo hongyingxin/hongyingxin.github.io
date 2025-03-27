@@ -44,11 +44,12 @@ export default defineConfig({
         items: [
           { text: 'HTML', link: '/每日一面/HTML/' },
           { text: 'CSS', link: '/每日一面/CSS/' },
+          { text: 'JavaScript', link: '/每日一面/JavaScript/' },
           { text: 'Vue', link: '/每日一面/Vue/' },
           { text: 'React', link: '/每日一面/React/' },
           { text: '网络', link: '/每日一面/网络/' },
           { text: '工程化', link: '/每日一面/工程化/' },
-          { text: 'JavaScript', link: '/每日一面/JavaScript/' }
+          
         ]
       },
       { text: '学习笔记',
