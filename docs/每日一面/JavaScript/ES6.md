@@ -115,6 +115,52 @@ function foo() {
 }
 ```
 
+## 强引用和弱引用
+
+### 强引用（Strong Reference）
+
+指的是普通的对象引用，只要有强引用指向某个对象，该对象就不会被垃圾回收。JavaScript中的常规变量赋值、对象属性、数组元素等都是强引用，Map、Set、Array等数据结构对其元素也是强引用。
+
+```javascript
+let obj = { name: 'example' };  // obj 强引用了这个对象
+let arr = [obj];               // 数组也强引用了这个对象
+let map = new Map();
+map.set(obj, 'value');         // Map对obj是强引用
+
+// 即使原始引用被清除
+obj = null;
+
+// 对象仍然可以通过数组或Map访问
+console.log(arr[0]);          // { name: 'example' }
+// 对象不会被垃圾回收，因为arr和map仍然引用它
+```
+
+### 弱引用（Weak Reference）
+
+指的是不会阻止对象被垃圾回收的引用。如果一个对象只有弱引用指向它，没有强引用，那么它会被垃圾回收。JavaScript中通过WeakMap、WeakSet实现弱引用。弱引用不会被计入引用计数。
+
+```javascript
+let obj = { name: 'example' };  // obj 强引用了这个对象
+let weakMap = new WeakMap();
+weakMap.set(obj, 'value');      // weakMap对obj是弱引用
+
+// 当清除强引用
+obj = null;
+
+// 对象会被垃圾回收，weakMap中对应的键值对也会消失
+// 无法通过weakMap访问原对象，但这个过程不是立即的
+```
+
+### 强弱引用对比
+
+| 特性 | 强引用 | 弱引用 |
+|------|--------|--------|
+| 垃圾回收 | 阻止回收 | 不阻止回收 |
+| 数据结构 | Map, Set, Array等 | WeakMap, WeakSet |
+| 可遍历性 | 可以遍历 | 不可遍历 |
+| 引用计数 | 计入计数 | 不计入计数 |
+| 内存泄漏风险 | 较高 | 较低 |
+
 ## 箭头函数
 
 箭头函数没有自己的this对象，函数体内的this对象，就是定义该函数所在的作用域指向的对象，而不是使用时所在的作用域指向的对象。
