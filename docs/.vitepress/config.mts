@@ -58,6 +58,7 @@ export default defineConfig({
           { text: 'React', link: '/学习笔记/React/' },
           { text: 'Vue', link: '/学习笔记/Vue/' },
           { text: 'TypeScript', link: '/学习笔记/TypeScript/' },
+          { text: 'Electron', link: '/学习笔记/Electron/' },
         ]
       }
     ],
