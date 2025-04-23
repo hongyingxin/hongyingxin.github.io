@@ -10,7 +10,7 @@ blog:
   inspiring: 真正的学徒永远怀着一颗大师的心
 
   # 设置首页列表每页展示数量
-  pageSize: 6
+  pageSize: 10
 
   # 设置头像分离展示模式
   avatarMode: true
