@@ -75,3 +75,27 @@ React更新状态（state）时，使用不可变（immutable）的原因：
 - 可维护性。
 
 <font style="color:#DF2A3F;">React提供了“严格模式”，在严格模式下开发时，它将会调用每个组件函数两次。通过重复调用组件函数，严格模式有助于找到违反这些规则的组件。（这也是console.log打印两次的原因）</font>
+
+## React懒加载的实现原理
+
+React16.6 之后，提供了 React.lazy 和 Suspense 两个新特性，来实现懒加载。配合 webpack 的 code-splitting 功能，可以实现按需加载。
+
+Suspense 允许在子组件完成加载前展示后备方案。而 lazy 能够在组件第一次被渲染之前延迟加载组件的代码，以声明一个懒加载的组件。
+
+```jsx
+import React, { Suspense } from 'react';
+
+const OtherComponent = React.lazy(() => import('./OtherComponent'));
+
+function MyComponent() {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <OtherComponent />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+如上代码中，通过 import()、React.lazy 和 Suspense 共同一起实现了 React 的懒加载，也就是我们常说了运行时动态加载，即 OtherComponent 组件文件被拆分打包为一个新的包（bundle）文件，并且只会在 OtherComponent 组件渲染时，才会被下载到本地。
