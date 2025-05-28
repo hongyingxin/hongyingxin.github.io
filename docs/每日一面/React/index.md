@@ -99,3 +99,18 @@ function MyComponent() {
 ```
 
 如上代码中，通过 import()、React.lazy 和 Suspense 共同一起实现了 React 的懒加载，也就是我们常说了运行时动态加载，即 OtherComponent 组件文件被拆分打包为一个新的包（bundle）文件，并且只会在 OtherComponent 组件渲染时，才会被下载到本地。
+
+## React.memo()和useMemo()
+
+在类组件中，我们可以使用 `shouldComponentUpdate` 或者 `PureComponent` 来控制重新渲染。
+
+在 React16.6 之后，提供了 `React.memo()` 对函数组件执行相同操作的能力。
+
+`React.memo()` 是一个 高阶组件（Higher-Order Component，HOC），它接收一个组件 A 作为参数并返回一个组件 B，如果组件 B 的 props 没有发生变化，则组件 B 会阻止组件 A 的重新渲染。
+
+`useMemo()` 是一个 React Hook。可以依赖`userMemo()`作为性能优化，函数内部引用的每个值也应该出现在依赖中。
+
+`React.memo()`和`useMemo()`都是用来优化React组件的性能的。
+
+- React.memo()是用来优化函数组件的性能的。
+- useMemo()是用来优化普通变量的性能的。
