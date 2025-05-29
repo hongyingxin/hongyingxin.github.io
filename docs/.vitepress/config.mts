@@ -67,5 +67,11 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/hongyingxin' }
     ],
-  }
+  },
+  // vite配置
+  vite: {
+    server: {
+      port: 10086,
+    },
+  },
 })
