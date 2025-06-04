@@ -162,12 +162,38 @@ React 17 版本在原生事件执行前先执行合成事件捕获阶段，原�
 ## 常用的 React Hooks有哪些
 
 **useState**：用于定义组件的State，类似于类组件的this.state。
+
 **useEffect**：用于定义组件的副作用，类似于类组件的componentDidMount、componentDidUpdate和componentWillUnmount的结合。
+
 **useContext**：获取 context 对象，用于在组件树中获取和使用共享的上下文。
+
 **useReducer**：用于管理复杂状态逻辑的替代方案，类似于Redux的reducer。
+
 **useCallback**：缓存回调函数，避免传入的回调每次都是新的函数实例而导致依赖组件重新渲染，优化性能。
+
 **useMemo**：用于缓存计算结果，避免重复计算昂贵的操作，优化性能。
+
 **useRef**：获取组件的真实节点，用于在函数组件之间保存可变的值，并且不会引发重新渲染。
+
 **useImperativeHandle**：用于自定义暴露给父组件的实例值或方法。
+
 **useLayoutEffect**：与useEffect类似，但会在浏览器渲染前执行，用于处理DOM操作。
+
 **useDebugValue**：用于在开发者工具中显示自定义的钩子相关标签。
+
+
+## useEffect和useLayoutEffect的区别
+
+**场景**
+
+- `useEffect` 在React的渲染过程中被异步调用，用于绝大多数场景；
+- `useLayoutEffect` 在所有的DOM变更之后同步调用，主要用于处理DOM操作、调整样式、避免页面闪烁等问题
+
+**效果**
+
+- `useEffect` 按照顺序执行代码，改变屏幕像素之后执行，当改变屏幕内容时可能产生闪烁
+- `useLayoutEffect` 改变屏幕像素之前执行，不会产生闪烁。
+
+**总结**
+
+`useLayoutEffect`比`useEffect`更早执行，`useEffect`是异步调用，不会阻塞浏览器渲染，`useLayoutEffect`是同步调用，会阻塞浏览器渲染。
