@@ -59,8 +59,9 @@ export default defineConfig({
           { text: 'Vue', link: '/学习笔记/Vue/' },
           { text: 'TypeScript', link: '/学习笔记/TypeScript/' },
           { text: 'Electron', link: '/学习笔记/Electron/' },
+          { text: 'Nuxt', link: '/学习笔记/Nuxt/' },
         ]
-      }
+      },
     ],
 
     // 社交链接
