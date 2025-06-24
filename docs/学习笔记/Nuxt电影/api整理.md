@@ -156,3 +156,76 @@
 - **发行信息**: 发行公司信息
 
 整理完，我们发现，这些功能完全满足我们构建一个功能完整的电影应用。
+
+## 📋 中文接口速查表
+
+### 🎬 电影相关接口
+
+| 功能 | 接口路径 | 方法 | 说明 |
+|------|----------|------|------|
+| 正在上映 | `/movie/now_playing` | GET | 获取当前正在上映的电影 |
+| 热门电影 | `/movie/popular` | GET | 获取热门电影列表 |
+| 评分最高 | `/movie/top_rated` | GET | 获取评分最高的电影 |
+| 即将上映 | `/movie/upcoming` | GET | 获取即将上映的电影 |
+| 电影详情 | `/movie/{id}` | GET | 获取电影详细信息 |
+| 电影搜索 | `/search/movie` | GET | 搜索电影 |
+| 电影推荐 | `/movie/{id}/recommendations` | GET | 获取相似电影推荐 |
+| 电影图片 | `/movie/{id}/images` | GET | 获取电影海报和剧照 |
+| 电影视频 | `/movie/{id}/videos` | GET | 获取电影预告片 |
+
+### 📺 电视剧相关接口
+
+| 功能 | 接口路径 | 方法 | 说明 |
+|------|----------|------|------|
+| 正在播出 | `/tv/on_the_air` | GET | 获取正在播出的电视剧 |
+| 热门剧集 | `/tv/popular` | GET | 获取热门电视剧 |
+| 评分最高 | `/tv/top_rated` | GET | 获取评分最高的电视剧 |
+| 今日播出 | `/tv/airing_today` | GET | 获取今日播出的电视剧 |
+| 剧集详情 | `/tv/{id}` | GET | 获取电视剧详细信息 |
+| 剧集搜索 | `/search/tv` | GET | 搜索电视剧 |
+
+### 👥 演员相关接口
+
+| 功能 | 接口路径 | 方法 | 说明 |
+|------|----------|------|------|
+| 演员详情 | `/person/{id}` | GET | 获取演员详细信息 |
+| 演员作品 | `/person/{id}/combined_credits` | GET | 获取演员的电影和电视剧作品 |
+| 演员图片 | `/person/{id}/images` | GET | 获取演员照片 |
+| 演员搜索 | `/search/person` | GET | 搜索演员 |
+
+### 🔍 搜索和发现接口
+
+| 功能 | 接口路径 | 方法 | 说明 |
+|------|----------|------|------|
+| 多类型搜索 | `/search/multi` | GET | 同时搜索电影、电视剧、演员 |
+| 电影发现 | `/discover/movie` | GET | 按条件筛选发现电影 |
+| 电视剧发现 | `/discover/tv` | GET | 按条件筛选发现电视剧 |
+
+### 📝 用户相关接口
+
+| 功能 | 接口路径 | 方法 | 说明 |
+|------|----------|------|------|
+| 用户评分 | `/account/{account_id}/rated/movies` | GET | 获取用户评分的电影 |
+| 用户收藏 | `/account/{account_id}/favorite/movies` | GET | 获取用户收藏的电影 |
+| 观看列表 | `/account/{account_id}/watchlist/movies` | GET | 获取用户观看列表 |
+
+### 🌍 配置信息接口
+
+| 功能 | 接口路径 | 方法 | 说明 |
+|------|----------|------|------|
+| 电影类型 | `/genre/movie/list` | GET | 获取电影类型列表 |
+| 电视剧类型 | `/genre/tv/list` | GET | 获取电视剧类型列表 |
+| 国家列表 | `/configuration/countries` | GET | 获取支持的国家列表 |
+| 语言列表 | `/configuration/languages` | GET | 获取支持的语言列表 |
+
+### 📊 常用参数
+
+| 参数名 | 类型 | 说明 | 示例 |
+|--------|------|------|------|
+| `api_key` | string | API密钥（必需） | `your_api_key` |
+| `language` | string | 语言代码 | `zh-CN` |
+| `page` | integer | 页码 | `1` |
+| `query` | string | 搜索关键词 | `复仇者联盟` |
+| `year` | integer | 年份筛选 | `2023` |
+| `with_genres` | string | 类型筛选 | `28,12` |
+| `sort_by` | string | 排序方式 | `popularity.desc` |
