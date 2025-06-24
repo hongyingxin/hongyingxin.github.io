@@ -229,3 +229,20 @@
 | `year` | integer | 年份筛选 | `2023` |
 | `with_genres` | string | 类型筛选 | `28,12` |
 | `sort_by` | string | 排序方式 | `popularity.desc` |
+
+### 示例
+
+```ts
+// 获取热门电影
+const popularMovies = await fetch(
+  'https://api.themoviedb.org/3/movie/popular?api_key=YOUR_API_KEY&language=zh-CN'
+)
+// 搜索电影
+const searchResults = await fetch(
+  'https://api.themoviedb.org/3/search/movie?api_key=YOUR_API_KEY&query=复仇者联盟&language=zh-CN'
+)
+// 获取电影详情
+const movieDetail = await fetch(
+  'https://api.themoviedb.org/3/movie/299534?api_key=YOUR_API_KEY&language=zh-CN'
+)
+```
