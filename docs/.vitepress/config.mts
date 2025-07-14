@@ -5,8 +5,8 @@ import { defineConfig, getThemeConfig } from '@sugarat/theme/node'
 
 // 主题独有配置，所有配置项，详见文档: https://theme.sugarat.top/
 const blogThemeConfig = getThemeConfig({
-  // 关闭搜索
-  search: false,
+  // 开启搜索
+  // search: true,
   // 关闭深色模式过渡动画
   darkTransition: false,
   // 友情链接
