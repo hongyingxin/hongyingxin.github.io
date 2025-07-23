@@ -251,3 +251,33 @@ const movieDetail = await fetch(
   'https://api.themoviedb.org/3/movie/299534?api_key=YOUR_API_KEY&language=zh-CN'
 )
 ```
+
+## 接口进阶用法
+
+### append_to_response 字段
+
+在获取电影/电视剧的详情页面，我需要一次性发起多个请求获取数据。
+
+```typescript
+getDetail(mediaType, mediaId)
+getCredits(mediaType, mediaId)  
+getVideos(mediaType, mediaId)
+getSimilar(mediaType, mediaId)
+getImages(mediaType, mediaId)
+```
+
+TMDB 提供了 `append_to_response` 参数，可以一次性获取多个数据。这是一种将额外请求附加到任何顶级命名空间的简单高效方法。电影、电视节目、电视剧季、电视剧集和人物详情方法均支持名为 的查询参数。这使得可以在单个 HTTP 请求中在同一命名空间内发出子请求。每个请求都将作为新的 JSON 对象附加到响应中。
+
+```typescript
+// 优化方式 - 1个请求获取所有数据 ✅
+getDetailWithAll(mediaType, mediaId, {
+  append_to_response: 'credits,videos,similar,images,recommendations'
+})
+```
+
+### 配置项字段
+
+#### 语言字段
+
+#### 地区字段
+
