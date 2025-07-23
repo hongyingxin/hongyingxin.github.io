@@ -37,7 +37,6 @@ export default defineConfig({
         items: [
           { text: '组件库', link: '/components/index.md' },
           { text: 'Git', link: '/git/index.md' },
-          { text: 'React后管', link: '/学习笔记/React后管/' }
         ]
       },
       { text: '每日一面', 
