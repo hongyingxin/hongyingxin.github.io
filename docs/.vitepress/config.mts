@@ -51,15 +51,15 @@ export default defineConfig({
           
         ]
       },
-      { text: '学习笔记',
-        items: [
-          { text: 'JavaScript', link: '/学习笔记/JavaScript/' },
-          { text: 'React', link: '/学习笔记/React/' },
-          { text: 'Vue', link: '/学习笔记/Vue/' },
-          { text: 'TypeScript', link: '/学习笔记/TypeScript/' },
-          { text: 'Electron', link: '/学习笔记/Electron/' },
-          { text: 'Nuxt', link: '/学习笔记/Nuxt/' },
-        ]
+      { text: '学习笔记', link: '/学习笔记/index.md'
+        // items: [
+        //   { text: 'JavaScript', link: '/学习笔记/JavaScript/' },
+        //   { text: 'React', link: '/学习笔记/React/' },
+        //   { text: 'Vue', link: '/学习笔记/Vue/' },
+        //   { text: 'TypeScript', link: '/学习笔记/TypeScript/' },
+        //   { text: 'Electron', link: '/学习笔记/Electron/' },
+        //   { text: 'Nuxt', link: '/学习笔记/Nuxt/' },
+        // ]
       },
     ],
 
