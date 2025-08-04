@@ -1,4 +1,4 @@
-# ES6
+# JavaScript 进阶 - ES6
 
 ## let 和 const 
 
