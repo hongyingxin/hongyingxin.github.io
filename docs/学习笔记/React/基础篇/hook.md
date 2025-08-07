@@ -7,7 +7,7 @@ hook是React16.8的新增特性。它可以让你在不编写class的情况下�
 2. 复杂组件变得难以理解，组件起初很简单，但是逐渐会被状态逻辑和副作用充斥，组件变成臃肿难以复用维护。hook将组件中相互关联的部分拆分成更小的函数（比如订阅或请求数据）——>    effect hook体现
 3. 难以理解的class。class是学习React的一大屏障，必须去理解JavaScript中this的工作方式、绑定事件处理器，并且没有稳定的语法提案。即使在有经验的React开发者之间，对于函数组件与class组件的差异也存在分歧，甚至要区分两种组件的使用场景。hook可以在非class的情况下使用更多的React特效。
 
-![画板](../../public/assets/react/hook_1.jpeg)
+![画板](../../../public/assets/react/hook_1.jpeg)
 
 
 ## useState
