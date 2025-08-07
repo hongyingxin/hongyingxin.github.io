@@ -32,7 +32,7 @@
 
 通过切换 body 标签的主题类型实现切换
 
-![掘金暗黑模式](../public/assets/juejin.png)
+![掘金暗黑模式](/public/assets/juejin.png)
 
 
 ```html

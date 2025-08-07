@@ -11,7 +11,7 @@ sticky: 1
 2. 对Excel文件数据进行处理，使用英语列截取前三个字符作为key，或者key+index作为key
 3. 对处理后的数据展示出来，并提供复制功能和导出功能
 ### 思维导图
-![Excel Image](../public/assets/excel_1.png)
+![Excel Image](/public/assets/excel_1.png)
 
 
 ## 功能介绍

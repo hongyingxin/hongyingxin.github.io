@@ -1,7 +1,7 @@
 # Vue 响应式原理
 
 ## 思维导图
-![Excel Image](../../public/assets/vue/reactivity_system_1.png)
+![Excel Image](/public/assets/vue/reactivity_system_1.png)
 
 ### 数据流
 - `Observe.setter` >> `dep.notify` >> `watch.update`

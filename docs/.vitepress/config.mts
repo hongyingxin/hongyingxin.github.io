@@ -28,6 +28,9 @@ export default defineConfig({
   title: "三寸光阴一个鑫",
   description: "个人技术博客",
   
+  // 忽略死链接检查
+  // ignoreDeadLinks: true,
+  
   // 主题配置
   themeConfig: {
     // 导航栏
@@ -73,5 +76,13 @@ export default defineConfig({
     server: {
       port: 10086,
     },
+    // 配置静态资源处理
+    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
+    // 配置别名，让图片路径更简单
+    resolve: {
+      alias: {
+        '@assets': '/public/assets'
+      }
+    }
   },
 })

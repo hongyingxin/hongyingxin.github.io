@@ -2,7 +2,7 @@
 
 **圣经**：[https://github.com/AwesomeDevin/blog/issues/81](https://github.com/AwesomeDevin/blog/issues/81)
 
-![画板](../../public/assets/react/status_1.jpg)
+![画板](/public/assets/react/status_1.jpg)
 
 ## Redux
 Redux是JavaScript应用的状态容器，提供可预测的状态管理。

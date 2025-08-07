@@ -47,9 +47,9 @@ module.exports = {
 ## 如何配置
 在VSCode中安装插件，分别是ESlint和Prettier。
 
-![Excel Image](../public/assets/eslint_1.png)
+![Excel Image](/public/assets/eslint_1.png)
 
-![Excel Image](../public/assets/eslint_2.png)
+![Excel Image](/public/assets/eslint_2.png)
 
 在`package.json`文件中添加相应的依赖包，然后运行`npm install`或`yarn`安装依赖。
 
