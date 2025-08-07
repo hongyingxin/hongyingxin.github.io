@@ -5,7 +5,7 @@ React 生命周期需要分为以下几个阶段：
 - **Updating（更新时）**
 - **Unmounting（卸载时）**
 
-![React 生命周期图示](../../public/assets/react/method_1.png)
+![React 生命周期图示](../../../public/assets/react/method_1.png)
 
 ## 1. constructor()
 
