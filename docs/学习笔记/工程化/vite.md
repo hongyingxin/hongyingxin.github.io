@@ -48,7 +48,9 @@ export default {
 <!-- 基础 -->
 ## sourcemap
 
-sourcemap 是一个映射文件，它建立了压缩/混淆后的代码与原始源代码之间的对应关系。
+sourcemap 是一个映射文件，它建立了压缩/混淆后的代码与原始源代码之间的对应关系，主要是为了方便错误调试，定位问题代码所在行以及性能分析工具以及Sentry等第三方错误监控工具。
+
+然而，sourcemap 会增加构建时间，并且会增加打包后的文件大小。由于 .map 文件指向于源文件，存在暴漏源代码的风险。
 
 ```javascript
 // 原始代码 (src/main.ts)
@@ -80,6 +82,77 @@ export default {
   },
 };
 ```
+
+## manualChunks
+
+`build.rollupOptions` 是 vite 构建的一个选项，用于自定义底层的 `Rollup` 打包配置。具体配置需要去查看 [Rollup 文档](https://rollupjs.org/configuration-options/)。
+
+`manualChunks` 是 `rollupOptions.output` 中的一个配置项，用于将代码拆分成多个 chunk。这跟小程序的分包策略类似，可以按照业务模块进行拆分。通过配置 `manualChunks` 可以实现更好的缓存策略和模块管理。
+
+output 配置项，默认根据文件引入内容进行拆分，并根据文件大小进行合并，依据哈希值生成文件名。
+
+```javascript
+rollupOptions: {
+  // 默认值配置，写不写都一样
+  output: {
+    chunkFileNames: 'assets/js/[name]-[hash].js',
+    entryFileNames: 'assets/js/[name]-[hash].js',
+    assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+  }
+}
+```
+
+`manualChunks` 支持手动配置 chunk 文件名，entry 文件名，以及资源文件名，并且按照 views 目录下的文件进行拆分，将活动和模块拆分。
+
+```javascript
+rollupOptions: {
+  output: {
+    chunkFileNames: 'assets/js/[name]-[hash].js',
+    entryFileNames: 'assets/js/[name]-[hash].js',
+    assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+    manualChunks: (id) => {
+      if (id.includes('views/')) {
+        const pathParts = id.split('/');
+        const viewIndex = pathParts.findIndex((part) => part === 'views');
+
+        if (viewIndex !== -1 && pathParts[viewIndex + 1]) {
+          const moduleName = pathParts[viewIndex + 1];
+
+          // 活动页面
+          if (moduleName === 'activity') {
+            const activityName = pathParts[viewIndex + 2];
+            if (activityName) {
+              return `activity-${activityName}`;
+            }
+            return 'activity-common';
+          }
+
+          // 其他模块
+          return `module-${moduleName}`;
+        }
+      }
+    },
+  },
+},
+```
+
+为了方便对比，我们将使用 `manualChunks` 打包输出文件为 build_v 目录；没有使用 `manualChunks` 打包输出文件为 build_v2 目录。
+
+文件打包后如下图所示：
+
+![manualChunks](/public/assets/vite_3.png)
+
+| 方面 | build_v (有 manualChunks) | build_v2 (无 manualChunks) |
+|------|---------------------------|----------------------------|
+| **JS文件数量** | 25个 | 82个 |
+| **总大小** | 451M | 451M |
+| **文件命名** | 有意义的模块名 | 随机哈希名 |
+
+**分析结论：**
+
+1. **文件数量优化**：使用 `manualChunks` 后，JS文件数量从82个减少到25个，减少了69.5%
+2. **总大小不变**：代码总量保持一致（451M），说明只是重新组织了代码分割方式
+3. **命名可读性**：命令模式从随机哈希名`36-D1OT2XjX.js`改为有意义的模块名`activity-2024pk-D3mN1sDp.js`，按业务逻辑分组，便于理解和缓存
 
 ## 打包时间
 
@@ -167,3 +240,4 @@ npm run build  38.66s user 5.76s system 39% cpu 1:52.03 total
 | 第2次 | 43.50s | 6.53s | 42% | 1:57.78s | ✓ 1m 57s |
 | 第3次 | 44.49s | 6.89s | 101% | 50.744s | ✓ 49.57s |
 | **平均值** | **42.38s** | **6.77s** | **81.3%** | **73.09s** | **72.05s** |
+
