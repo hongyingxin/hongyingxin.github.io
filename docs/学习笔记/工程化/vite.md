@@ -154,6 +154,42 @@ rollupOptions: {
 2. **总大小不变**：代码总量保持一致（451M），说明只是重新组织了代码分割方式
 3. **命名可读性**：命令模式从随机哈希名`36-D1OT2XjX.js`改为有意义的模块名`activity-2024pk-D3mN1sDp.js`，按业务逻辑分组，便于理解和缓存
 
+## modulePreload
+
+推测性加载（Speculative Loading）是指在访问相关页面之前，提前加载可能需要的模块，以减少用户等待时间。
+
+推测性加载主要通过两种方式实现，一种是浏览器自动实现，一种是根据浏览器提供指令实现。
+
+**类型：**
+
+  - preconnect 跨源连接预热，用于在跨源连接上使用
+
+  - dns-prefetch 跨源连接预热，在所有跨源连接上使用
+
+  - preload 用于提前加载当前页面可能需要的资源，与页面主资源的加载并行进行，用于预加载图片、CSS、JavaScript 等资源
+
+  - prefetch 也是用于提前加载可能需要的资源，不过是在浏览器空闲的时候进行
+
+  - modulepreload 与 preload 类似，不过它用于加载 JavaScript 模块
+
+`modulePreload` 是 vite 构建的一个选项，用于配置是否启用模块预加载。
+
+  - 类型：boolean
+  - 默认值：true
+
+```html
+<!-- Vite 自动生成 -->
+<link rel="modulepreload" crossorigin href="./assets/js/activity-2025brazilNationalDay.js">
+```
+
+Vite 分析入口文件的直接依赖，构建模块依赖关系图，识别关键加载路径上的模块，最后在 HTML 中自动添加预加载链接。
+
+Vite 预加载策略是按照最大模块选择逻辑
+
+**相关文档：**
+
+- [模块预加载 polyfill ](https://guybedford.com/es-module-preloading-integrity#modulepreload-polyfill)
+ 
 ## 打包时间
 
 如何确定打包所花费的时间，我们需要有一个衡量的标准，然后通过对比来确定是否优化成功。
