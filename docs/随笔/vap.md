@@ -7,6 +7,7 @@
 Vap 是腾讯企鹅电竞开发的视频动画播放解决方案，目前已不维护。
 
 [插件地址](https://github.com/Tencent/vap/tree/master)
+
 [web 地址](https://github.com/Tencent/vap/tree/master/web)
 
 ### 使用
