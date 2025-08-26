@@ -1,6 +1,6 @@
 # Git 规范指南
 
-##### Commit 提交规范
+## Commit 提交规范
 
 Git 提交规范是一种约定，旨在使提交消息更具有可读性和一致性。以下是一种常见的 Git 提交规范示例：
 
@@ -43,7 +43,7 @@ Closes #123
 
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
-##### 分支命名规范
+## 分支命名规范
 
 良好的分支命名规范可以提高团队协作的效率，使代码库的结构更加清晰。以下是一些常见的分支命名规范：
 
