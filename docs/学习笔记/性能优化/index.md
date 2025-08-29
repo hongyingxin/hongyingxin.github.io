@@ -196,6 +196,356 @@ Bottom-Up类似事件冒泡，Call Tree类似事件捕获。自上而下的Call-
 
 Performance API 是浏览器提供的一组 API，用于测量和分析网页的性能。
 
+Performance API挂载在window下面的performance对象上，如下图所示：
+
+![Performance API](/public/assets/performance_6.png)
+
+### Performance 对象的属性
+
+#### 1. performance.timing（已弃用）
+**已弃用：** 该属性在 Navigation Timing Level 2 specification 中已经被废弃。返回一个 PerformanceTiming 对象，包含页面相关的性能信息。**请使用 PerformanceNavigationTiming 替代**（通过 `performance.getEntriesByType('navigation')` 获取）。
+
+#### 2. performance.navigation（已弃用）
+**已弃用：** 在现代浏览器中不再推荐使用。包含导航相关的信息，如重定向次数、导航类型等。**请使用 PerformanceNavigationTiming 接口替代**。
+
+#### 3. performance.memory（Chrome 专有）
+显示页面的内存使用情况：
+- `usedJSHeapSize`：已使用的 JS 堆大小
+- `totalJSHeapSize`：JS 堆总大小
+- `jsHeapSizeLimit`：JS 堆大小限制
+
+#### 4. performance.timeOrigin
+返回性能测量开始时的高精度时间戳。
+
+### Performance 对象的方法
+
+![Performance 对象的方法](/public/assets/performance_7.png)
+
+#### 1. performance.now()
+```javascript
+const startTime = performance.now();
+// 执行一些操作
+const endTime = performance.now();
+console.log(`操作耗时: ${endTime - startTime} 毫秒`);
+```
+返回当前时间相对于 `timeOrigin` 的高精度时间戳，精度可达微秒级别。
+
+#### 2. performance.mark(name)
+```javascript
+performance.mark('start-operation');
+// 执行操作
+performance.mark('end-operation');
+```
+创建一个性能标记，用于标记特定的时间点。
+
+#### 3. performance.measure(name, startMark, endMark)
+```javascript
+performance.mark('start-fetch');
+fetch('/api/data').then(() => {
+  performance.mark('end-fetch');
+  performance.measure('fetch-duration', 'start-fetch', 'end-fetch');
+});
+```
+创建两个标记之间的性能测量。
+
+#### 4. performance.getEntries()
+```javascript
+const entries = performance.getEntries();
+console.log(entries); // 获取所有性能条目
+```
+获取所有性能条目的列表。
+
+#### 5. performance.getEntriesByType(type)
+```javascript
+// 获取所有导航相关的性能数据
+const navigationEntries = performance.getEntriesByType('navigation');
+
+// 获取所有资源加载的性能数据
+const resourceEntries = performance.getEntriesByType('resource');
+
+// 获取所有标记
+const markEntries = performance.getEntriesByType('mark');
+
+// 获取所有测量
+const measureEntries = performance.getEntriesByType('measure');
+```
+
+根据类型获取特定的性能条目。
+
+**type 枚举值详解：**
+
+| 类型 | 说明 | 用途 |
+|------|------|------|
+| `'navigation'` | 导航时间数据 | 页面加载、刷新、前进后退等导航性能信息 |
+| `'resource'` | 资源加载数据 | CSS、JS、图片、字体等资源的加载性能 |
+| `'mark'` | 性能标记 | 通过 `performance.mark()` 创建的自定义时间标记 |
+| `'measure'` | 性能测量 | 通过 `performance.measure()` 创建的自定义时间测量 |
+| `'paint'` | 绘制时间 | 首次绘制(FP)、首次内容绘制(FCP)等渲染时机 |
+| `'largest-contentful-paint'` | 最大内容绘制 | LCP (Core Web Vitals 指标) |
+| `'first-input'` | 首次输入延迟 | FID 数据 (已被 INP 替代) |
+| `'layout-shift'` | 布局偏移 | CLS 相关的每次布局偏移记录 |
+| `'longtask'` | 长任务 | 执行时间超过50毫秒的任务 |
+| `'taskattribution'` | 任务归因 | 长任务的详细归因信息 |
+| `'event'` | 事件时间 | 事件处理性能数据 |
+| `'element'` | 元素时间 | 特定DOM元素的性能数据 |
+
+**常用示例：**
+
+```javascript
+// 获取绘制性能数据
+const paintEntries = performance.getEntriesByType('paint');
+paintEntries.forEach(entry => {
+  console.log(`${entry.name}: ${entry.startTime}ms`);
+  // first-paint: 300.123ms
+  // first-contentful-paint: 456.789ms
+});
+
+// 获取长任务数据（需要 PerformanceObserver）
+const longTasks = performance.getEntriesByType('longtask');
+console.log('长任务数量:', longTasks.length);
+
+// 获取布局偏移数据
+const layoutShifts = performance.getEntriesByType('layout-shift');
+const clsValue = layoutShifts.reduce((sum, entry) => sum + entry.value, 0);
+console.log('CLS 值:', clsValue);
+
+// 获取LCP数据
+const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
+if (lcpEntries.length > 0) {
+  const lcp = lcpEntries[lcpEntries.length - 1];
+  console.log('LCP 时间:', lcp.startTime);
+}
+```
+
+##### PerformanceNavigationTiming（通过 navigation 类型获取）
+
+`PerformanceNavigationTiming`提供了用于存储和检索有关浏览器文档事件的指标的方法和属性。
+
+`PerformanceNavigationTiming`继承了`PerformanceEntry`和`PerformanceResourceTiming`接口。
+
+下图显示了其所有时间戳属性：
+
+![PerformanceNavigationTiming](/public/assets/performance_8.png)
+
+`performance.getEntriesByType('navigation')` 返回的是 **PerformanceNavigationTiming** 对象，它替代了已废弃的 `performance.timing` 和 `performance.navigation` 属性：
+
+```javascript
+const [navigationEntry] = performance.getEntriesByType('navigation');
+
+// 原 performance.navigation 的信息（导航元数据）
+console.log('导航类型:', navigationEntry.type); // navigate, reload, back_forward, prerender
+console.log('重定向次数:', navigationEntry.redirectCount);
+
+// 原 performance.timing 的信息（时间节点）
+console.log('DNS查询时间:', navigationEntry.domainLookupEnd - navigationEntry.domainLookupStart);
+console.log('TCP连接时间:', navigationEntry.connectEnd - navigationEntry.connectStart);
+console.log('首字节时间(TTFB):', navigationEntry.responseStart - navigationEntry.requestStart);
+console.log('DOM解析时间:', navigationEntry.domContentLoadedEventEnd - navigationEntry.domContentLoadedEventStart);
+console.log('页面完全加载:', navigationEntry.loadEventEnd - navigationEntry.loadEventStart);
+
+// 新增的额外信息
+console.log('传输大小:', navigationEntry.transferSize);
+console.log('解压后大小:', navigationEntry.decodedBodySize);
+```
+
+**PerformanceNavigationTiming 实例属性详解：**
+
+##### 从 PerformanceEntry 继承的基础属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `name` | string | 条目名称，对于导航条目通常是文档的 URL |
+| `entryType` | string | 条目类型，值为 "navigation" |
+| `startTime` | number | 性能条目的开始时间，通常为 0 |
+| `duration` | number | 从开始到结束的总耗时（loadEventEnd - fetchStart） |
+
+##### 从 PerformanceResourceTiming 继承的资源属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `initiatorType` | string | 发起请求的资源类型，对于导航为 "navigation" |
+| `nextHopProtocol` | string | 网络协议（如 "h2", "http/1.1" 等） |
+| `workerStart` | number | Service Worker 启动时间 |
+| `redirectStart` | number | 重定向开始时间 |
+| `redirectEnd` | number | 重定向结束时间 |
+| `fetchStart` | number | 浏览器开始获取资源的时间 |
+| `domainLookupStart` | number | DNS 域名查询开始时间 |
+| `domainLookupEnd` | number | DNS 域名查询结束时间 |
+| `connectStart` | number | TCP 连接开始时间 |
+| `connectEnd` | number | TCP 连接结束时间 |
+| `secureConnectionStart` | number | HTTPS 握手开始时间 |
+| `requestStart` | number | HTTP 请求开始时间 |
+| `responseStart` | number | 开始接收响应数据的时间（首字节时间 TTFB） |
+| `responseEnd` | number | 接收响应数据完成的时间 |
+| `transferSize` | number | 传输的总字节数（包括响应头） |
+| `encodedBodySize` | number | 压缩后的响应体大小 |
+| `decodedBodySize` | number | 解压后的响应体大小 |
+
+##### PerformanceNavigationTiming 特有属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `type` | string | 导航类型："navigate", "reload", "back_forward", "prerender" |
+| `redirectCount` | number | 重定向次数 |
+| `unloadEventStart` | number | 前一个文档的 unload 事件开始时间 |
+| `unloadEventEnd` | number | 前一个文档的 unload 事件结束时间 |
+| `domInteractive` | number | DOM 构建完成，用户可以与页面交互的时间 |
+| `domContentLoadedEventStart` | number | DOMContentLoaded 事件开始时间 |
+| `domContentLoadedEventEnd` | number | DOMContentLoaded 事件结束时间 |
+| `domComplete` | number | DOM 和所有子资源加载完成时间 |
+| `loadEventStart` | number | load 事件开始时间 |
+| `loadEventEnd` | number | load 事件结束时间 |
+
+**属性使用示例：**
+
+```javascript
+const [nav] = performance.getEntriesByType('navigation');
+
+// 基础信息
+console.log('页面URL:', nav.name);
+console.log('条目类型:', nav.entryType); // "navigation"
+console.log('总耗时:', nav.duration, 'ms');
+
+// 导航特有信息
+console.log('导航类型:', nav.type); // navigate/reload/back_forward/prerender
+console.log('重定向次数:', nav.redirectCount);
+
+// 网络时间分析
+console.log('DNS查询耗时:', nav.domainLookupEnd - nav.domainLookupStart, 'ms');
+console.log('TCP连接耗时:', nav.connectEnd - nav.connectStart, 'ms');
+console.log('SSL握手耗时:', nav.connectEnd - nav.secureConnectionStart, 'ms');
+console.log('请求响应耗时:', nav.responseEnd - nav.requestStart, 'ms');
+console.log('首字节时间(TTFB):', nav.responseStart - nav.requestStart, 'ms');
+
+// DOM 事件时间分析
+console.log('DOM可交互时间:', nav.domInteractive, 'ms');
+console.log('DOMContentLoaded耗时:', nav.domContentLoadedEventEnd - nav.domContentLoadedEventStart, 'ms');
+console.log('页面完全加载时间:', nav.loadEventEnd, 'ms');
+
+// 资源大小分析
+console.log('传输大小:', nav.transferSize, 'bytes');
+console.log('压缩后大小:', nav.encodedBodySize, 'bytes');
+console.log('解压后大小:', nav.decodedBodySize, 'bytes');
+console.log('压缩率:', ((nav.decodedBodySize - nav.encodedBodySize) / nav.decodedBodySize * 100).toFixed(2), '%');
+
+// 协议信息
+console.log('网络协议:', nav.nextHopProtocol);
+```
+
+**新旧API对比**：
+
+| 旧API（已废弃） | 数据类型 | 新API统一替代 |
+|-------|----------|---------------|
+| `performance.timing` | 时间节点信息 | `PerformanceNavigationTiming` |
+| `performance.navigation` | 导航元数据信息 | `PerformanceNavigationTiming` |
+
+> **注意**：新的 `PerformanceNavigationTiming` 接口将原本两个不同的API合并成一个更完整的接口，提供了所有原有信息以及额外的新增信息。
+
+#### 6. performance.getEntriesByName(name, type)
+```javascript
+const entries = performance.getEntriesByName('my-mark', 'mark');
+```
+根据名称和类型获取性能条目。
+
+#### 7. performance.clearMarks(name?)
+```javascript
+performance.clearMarks(); // 清除所有标记
+performance.clearMarks('my-mark'); // 清除特定标记
+```
+清除性能标记。
+
+#### 8. performance.clearMeasures(name?)
+```javascript
+performance.clearMeasures(); // 清除所有测量
+performance.clearMeasures('my-measure'); // 清除特定测量
+```
+清除性能测量。
+
+#### 9. performance.clearResourceTimings()
+```javascript
+performance.clearResourceTimings();
+```
+清除所有资源时间数据。
+
+#### 10. performance.setResourceTimingBufferSize(maxSize)
+```javascript
+performance.setResourceTimingBufferSize(200);
+```
+设置资源时间缓冲区的大小。
+
+### 性能条目类型
+
+#### Navigation Entry
+```javascript
+const [navEntry] = performance.getEntriesByType('navigation');
+console.log('DNS查询时间:', navEntry.domainLookupEnd - navEntry.domainLookupStart);
+console.log('TCP连接时间:', navEntry.connectEnd - navEntry.connectStart);
+console.log('请求响应时间:', navEntry.responseEnd - navEntry.requestStart);
+console.log('DOM加载时间:', navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart);
+console.log('页面完全加载时间:', navEntry.loadEventEnd - navEntry.loadEventStart);
+```
+
+#### Resource Entry
+```javascript
+const resourceEntries = performance.getEntriesByType('resource');
+resourceEntries.forEach(entry => {
+  console.log(`资源: ${entry.name}`);
+  console.log(`加载时间: ${entry.duration}ms`);
+  console.log(`大小: ${entry.transferSize} bytes`);
+});
+```
+
+#### Paint Entry
+```javascript
+const paintEntries = performance.getEntriesByType('paint');
+paintEntries.forEach(entry => {
+  console.log(`${entry.name}: ${entry.startTime}ms`);
+});
+// 输出类似：
+// first-paint: 300.123ms
+// first-contentful-paint: 456.789ms
+```
+
+### 实际应用示例
+
+#### 测量函数执行时间
+```javascript
+function measureFunction(fn, name) {
+  performance.mark(`${name}-start`);
+  const result = fn();
+  performance.mark(`${name}-end`);
+  performance.measure(name, `${name}-start`, `${name}-end`);
+  
+  const measure = performance.getEntriesByName(name, 'measure')[0];
+  console.log(`${name} 执行时间: ${measure.duration}ms`);
+  
+  return result;
+}
+
+// 使用示例
+const result = measureFunction(() => {
+  return Array(1000000).fill(0).map((_, i) => i * 2);
+}, 'array-operation');
+```
+
+#### 监控页面性能
+```javascript
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const [navEntry] = performance.getEntriesByType('navigation');
+    const paintEntries = performance.getEntriesByType('paint');
+    
+    console.log('性能指标:');
+    console.log('- DNS查询:', navEntry.domainLookupEnd - navEntry.domainLookupStart);
+    console.log('- TCP连接:', navEntry.connectEnd - navEntry.connectStart);
+    console.log('- 首次绘制:', paintEntries.find(p => p.name === 'first-paint')?.startTime);
+    console.log('- 首次内容绘制:', paintEntries.find(p => p.name === 'first-contentful-paint')?.startTime);
+    console.log('- DOM加载完成:', navEntry.domContentLoadedEventEnd);
+    console.log('- 页面完全加载:', navEntry.loadEventEnd);
+  }, 0);
+});
+```
+
 ## LightHouse 第三方检查
 
 LightHouse 是一个第三方检查工具，用于检查网页的性能。
