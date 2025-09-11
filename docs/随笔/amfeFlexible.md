@@ -23,6 +23,13 @@ function setBodyFontSize () {
     document.addEventListener('DOMContentLoaded', setBodyFontSize)
   }
 }
+setBodyFontSize();
+// set 1rem = viewWidth / 10
+function setRemUnit () {
+  var rem = docEl.clientWidth / 10
+  docEl.style.fontSize = rem + 'px'
+}
+setRemUnit()
 ```
 
 **设备像素比（DPR）处理：**
