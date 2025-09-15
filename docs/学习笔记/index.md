@@ -11,3 +11,5 @@
 - [Nuxt](/学习笔记/Nuxt/index.md)
 - [Electron](/学习笔记/Electron/index.md)
 - [Nest](/学习笔记/Nest/index.md)
+- [性能优化](/学习笔记/性能优化/index.md)
+- [工程化](/学习笔记/工程化/index.md)

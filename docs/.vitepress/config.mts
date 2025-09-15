@@ -54,15 +54,20 @@ export default defineConfig({
           
         ]
       },
-      { text: '学习笔记', link: '/学习笔记/index.md'
-        // items: [
-        //   { text: 'JavaScript', link: '/学习笔记/JavaScript/' },
-        //   { text: 'React', link: '/学习笔记/React/' },
-        //   { text: 'Vue', link: '/学习笔记/Vue/' },
-        //   { text: 'TypeScript', link: '/学习笔记/TypeScript/' },
-        //   { text: 'Electron', link: '/学习笔记/Electron/' },
-        //   { text: 'Nuxt', link: '/学习笔记/Nuxt/' },
-        // ]
+      { text: '学习笔记', 
+        // link: '/学习笔记/index.md'
+        items: [
+          { text: '首页', link: '/学习笔记/' },
+          { text: 'JavaScript', link: '/学习笔记/JavaScript/' },
+          { text: 'React', link: '/学习笔记/React/' },
+          { text: 'Vue', link: '/学习笔记/Vue/' },
+          { text: 'TypeScript', link: '/学习笔记/TypeScript/' },
+          { text: 'Electron', link: '/学习笔记/Electron/' },
+          { text: 'Nuxt', link: '/学习笔记/Nuxt/' },
+          { text: 'Nest', link: '/学习笔记/Nest/' },
+          { text: '性能优化', link: '/学习笔记/性能优化/' },
+          { text: '工程化', link: '/学习笔记/工程化/vite.md' },
+        ]
       },
     ],
 
