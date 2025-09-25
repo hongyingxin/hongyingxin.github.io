@@ -57,8 +57,13 @@
 
 ## 4.Teleport是什么？解决了什么具体问题
 
-Teleport 是一个内置组件，可以将组件的DOM挂载到指定的组件层，而不是默认的父组件层，常用于创建模态框等弹窗组件。Teleport的to属性为必选项，可以指定挂载的DOM位置，通常是body；disabled属性为可选，可以禁用Teleport组件；defer属性为可选，3.5+版本新增的属性，可以延迟挂载。
+Teleport 是一个内置组件，可以将组件的DOM挂载到指定的组件层，而不是默认的父组件层，常用于创建模态框等弹窗组件。
 
+- 属性：
+  - `to`属性为必选项，可以指定挂载的DOM位置，通常是body；
+  - `disabled`属性为可选，可以禁用Teleport组件；
+  - `defer`属性为可选，3.5+版本新增的属性，可以延迟挂载。
+  
 - 问题： 模态框、下拉菜单受父组件CSS影响（z-index、overflow等）
 - 解决： 将组件内容渲染到任意DOM位置，通常是body
 - 语法：` <Teleport to="body">content</Teleport>`
