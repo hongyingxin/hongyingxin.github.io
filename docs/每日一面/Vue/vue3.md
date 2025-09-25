@@ -1,6 +1,6 @@
 # vue3
 
-## ref和reactive的区别是什么
+## 1.ref和reactive的区别是什么
 
 ### reactive(object)
 
@@ -34,10 +34,31 @@
 - reactive：用于对象类型（对象和数组）返回原对象的响应式代理，可以直接访问。
 - 使用场景：基本类型用ref，复杂对象用reactive，需要整体替换对象时使用ref
 
-## setup函数什么时候执行？能访问this吗？
+## 2.setup函数什么时候执行？能访问this吗？
 
 - 执行时机：组合式API的`setup()`钩子会在所有选项时API钩子之前调用，包括`beforeCreate()`。
 
 - this访问：不能访问this，因为组件实例还不存在，为`undefined`。
 
 - 参数：接收`props`、`context`两个参数。
+
+## 3.watchEffect和watch的具体区别？
+
+- `watch`和`watchEffect`都是监听器，它们之间的主要区别是追踪响应式依赖的方式。
+- 与`watchEffect`相比，`watch`可以懒执行副作用，更加明确是应该由哪个状态触发侦听器重新执行，可以访问所侦听状态的前一个值和当前值。
+- `watchEffect`：自动监听数据源作为依赖，运行后立即执行。
+- `watch`：只监听指明的数据源，不会监听回调中的数据，需要数据源改变后才会执行。
+- options选项：
+  - `immediate`：创建时立即触发回调
+  - `deep`：强制深度遍历
+  - `flush`：回调函数的刷新时机
+  - `once`：一次性侦听器
+- 使用场景： `watchEffect`适合副作用操作，`watch`适合需要对比新旧值的场景
+
+## 4.Teleport是什么？解决了什么具体问题
+
+Teleport 是一个内置组件，可以将组件的DOM挂载到指定的组件层，而不是默认的父组件层，常用于创建模态框等弹窗组件。Teleport的to属性为必选项，可以指定挂载的DOM位置，通常是body；disabled属性为可选，可以禁用Teleport组件；defer属性为可选，3.5+版本新增的属性，可以延迟挂载。
+
+- 问题： 模态框、下拉菜单受父组件CSS影响（z-index、overflow等）
+- 解决： 将组件内容渲染到任意DOM位置，通常是body
+- 语法：` <Teleport to="body">content</Teleport>`
