@@ -162,6 +162,11 @@ packages/runtime-test/
 - 作用：平台无关的编译器核心逻辑
 - 依赖：`@vue/shared`
 - 特点：上一篇`vue编译`的的编译优化主要实现
+- 包含：
+  - AST解析和转换
+  - 代码生成
+  - 各种编译优化（静态提升、补丁标记等）
+  - 基础的transform函数
 
 ```text
 packages/compiler-core/
@@ -189,6 +194,10 @@ packages/compiler-core/
 
 - 作用：DOM平台的编译器扩展
 - 依赖：`@vue/compiler-core，@vue/shared`
+- 包含：
+  - DOM特定的指令转换（v-html、v-model、v-on、v-show、v-text）
+  - HTMl解析优化
+  - 浏览器兼容性处理
 
 ```text
 packages/compiler-dom/
@@ -210,6 +219,11 @@ packages/compiler-dom/
 
 - 作用：.vue文件的完整编译处理
 - 依赖：`@vue/compiler-core， @vue/compiler-dom，@vue/shared`
+- 包含：
+  - SFC解析（script、style、template）
+  - `<script setup>`语法糖处理
+  - CSS作用域处理
+  - 编译时宏处理
 
 ```text
 packages/compiler-sfc/
