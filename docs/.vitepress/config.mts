@@ -66,7 +66,7 @@ export default defineConfig({
           { text: 'Nuxt', link: '/学习笔记/Nuxt/' },
           { text: 'Nest', link: '/学习笔记/Nest/' },
           { text: '性能优化', link: '/学习笔记/性能优化/' },
-          { text: '工程化', link: '/学习笔记/工程化/vite.md' },
+          { text: '工程化', link: '/学习笔记/工程化/' },
         ]
       },
     ],
