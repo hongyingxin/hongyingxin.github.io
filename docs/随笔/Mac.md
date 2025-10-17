@@ -165,3 +165,90 @@ open .                          # 打开当前目录
 open /Applications/Safari.app/  # 打开应用
 open -n /Applications/Safari.app/  # 打开新的应用实例
 ```
+
+## Homebrew
+
+Homebrew 是 macOS 上的包管理器，用于安装和管理软件。
+
+### 安装
+
+打开终端，输入以下命令：
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+在这个过程中，我们需要输入管理员密码，即我们的Mac密码。下载完成后，终端会输出一段命令，让我们将Homebrew添加到Path环境变量中。
+
+![image.png](/public/assets/随笔/brew.png)
+
+```bash
+Next steps:
+- Run these commands in your terminal to add Homebrew to your PATH:
+    echo >> /Users/hong/.zprofile
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/hong/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+按照提示依次执行命令即可配置完成。
+
+### 验证安装
+
+```bash
+brew --version
+```
+
+如果安装成功，会输出 Homebrew 的版本号。
+
+```bash
+Homebrew 4.6.17
+```
+
+至此，我们就完成了Homebrew的安装。
+
+### 安装软件
+
+我们可以使用brew命令来安装软件。这里安装`Java`和`Jenkins`。
+
+```bash
+brew install openjdk@17
+brew install jenkins-lts
+```
+
+启动Jenkins
+
+```bash
+brew services start jenkins-lts
+
+# ==> Successfully started `jenkins-lts` (label: homebrew.mxcl.jenkins-lts)
+```
+
+检查Jenkins服务状态并获取初始化管理员密码
+```bash
+brew services list | grep jenkins
+# jenkins-lts started         hong ~/Library/LaunchAgents/homebrew.mxcl.jenkins-lts.plist
+sleep 10 && cat ~/.jenkins/secrets/initialAdminPassword
+# fccdc71a32d440cb88d15bee278b66fd
+```
+
+到这里我们的Jenkins就安装完成了。打开浏览器，输入`http://localhost:8080`，输入初始化管理员密码，即可进入Jenkins页面。
+
+![image.png](/public/assets/随笔/jenkins.png)
+
+## Jenkins
+
+第一次安装Jenkins时，访问页面，输入初始化管理员密码，然后选择社区推荐的插件安装方式，提示出现错误，无法安装插件。
+
+![image.png](/public/assets/随笔/jenkins_1.png)
+
+```
+安装过程中出现一个错误： No such plugin: cloudbees-folder
+```
+
+这个提示很明显，就是缺少了`cloudbees-folder`这个插件导致的。我们暂时跳过，然后手动安装这个插件。
+
+[cloudbees-folder插件下载地址](https://updates.jenkins-ci.org/download/plugins/cloudbees-folder/)
+
+[清华镜像源](https://mirrors.tuna.tsinghua.edu.cn/jenkins/plugins/cloudbees-folder/)
+
+下载后，点击[系统设置] -> [插件管理] -> [高级] -> [上传插件]，上传下载的插件，安装即可。
