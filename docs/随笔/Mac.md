@@ -237,6 +237,8 @@ sleep 10 && cat ~/.jenkins/secrets/initialAdminPassword
 
 ## Jenkins
 
+### 问题1
+
 第一次安装Jenkins时，访问页面，输入初始化管理员密码，然后选择社区推荐的插件安装方式，提示出现错误，无法安装插件。
 
 ![image.png](/public/assets/随笔/jenkins_1.png)
@@ -252,3 +254,74 @@ sleep 10 && cat ~/.jenkins/secrets/initialAdminPassword
 [清华镜像源](https://mirrors.tuna.tsinghua.edu.cn/jenkins/plugins/cloudbees-folder/)
 
 下载后，点击[系统设置] -> [插件管理] -> [高级] -> [上传插件]，上传下载的插件，安装即可。
+
+### 问题2
+
+在进入 manage 页面时，报错。
+
+```text
+Some plugins could not be loaded due to unsatisfied dependencies. Fix these issues and restart Jenkins to re-enable these plugins.
+
+Dependency errors:
+
+Folders Plugin (6.1062.v2877b_d6b_b_eeb_)
+Plugin is missing: ionicons-api (94.vcc3065403257) 在这个页面http://localhost:8080/manage/报错
+```
+
+这是一个依赖插件缺失的问题。我们只需要安装缺失的插件（ionicons-api）即可。
+
+- 打开 http://localhost:8080/manage/pluginManager/
+- 点击 "Available" 标签页
+- 在搜索框中输入 "ionicons-api"
+- 勾选 "ionicons-api" 插件
+- 点击 "Install without restart" 或 "Download now and install after restart"
+- 安装完成后，重启 Jenkins
+
+### 汉化
+
+看英语觉得费劲，下载中文插件。有了上面的插件下载经验，方便了许多。
+
+下载方式：回到Jenkins首页Dashboard --> Manage Jenkins --> Manage Plugins -->  Availabel  --> 输入Chinese 
+
+安装完成后，我们就可以看到中英混合的界面了（哈哈哈）。
+
+### 工作空间
+
+#### 主要目录结构
+
+Jenkins主目录位于 `~/.jenkins` 目录下。（即`/Users/hong/.jenkins`）
+
+**关键目录说明**
+
+1. 工作空间目录：`~/.jenkins/workspace`
+
+  - 这里存放项目的源代码（从Git等拉取的代码）
+  - 因为我们在Jenkins创建了两个项目，对应：`My-demo`和`webDemo`
+
+2. 构建历史目录：`~/.jenkins/jobs/<项目名称>/builds`
+
+  - ~/.jenkins/jobs/My-demo/builds/ - My-demo项目的构建历史
+  - ~/.jenkins/jobs/webDemo/builds/ - webDemo项目的构建历史
+
+3. 具体构建文件位置：`~/.jenkins/jobs/[项目名]/builds/[构建号]/`
+
+**构建产物通常存放在**
+
+- 工作空间内的构建目录（如 dist/, build/, target/ 等）
+- Archive artifacts 配置的目录
+- 自定义的输出目录
+
+**如何查看具体构建产物**
+
+我们可以在Jenkins Web界面中：
+- 访问：http://localhost:8080/job/[项目名]/[构建号]/
+- 点击 "Workspace" 查看工作空间文件
+- 点击 "Build Artifacts" 查看归档的构建产物
+
+建议：在Jenkins项目配置中查看 "Post-build Actions" → "Archive the artifacts" 设置，这会告诉你具体的构建产物路径。
+
+**注意点**
+
+因为`./jenkins`目录是隐藏的，Mac通过按`Command + Shift + .`可以显示隐藏文件。 Windows通过按`Ctrl + Shift + .`可以显示隐藏文件。
+
+### Jenkins凭据配置说明
