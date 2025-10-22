@@ -324,4 +324,117 @@ Jenkins主目录位于 `~/.jenkins` 目录下。（即`/Users/hong/.jenkins`）
 
 因为`./jenkins`目录是隐藏的，Mac通过按`Command + Shift + .`可以显示隐藏文件。 Windows通过按`Ctrl + Shift + .`可以显示隐藏文件。
 
-### Jenkins凭据配置说明
+### Git构建
+
+一般情况下，Jenkins需要配置Git进行代码拉取。
+
+1. 首先我们需要去下载git插件
+
+2. 然后在项目选择配置 -> Configuration -> Source Code Management 配置 Git 信息。
+   - Repository URL: 填写Git仓库地址
+   - Credentials: 添加对应项目的帐户名密码
+
+![图片](/public/assets/随笔/jenkins_2.png)
+
+这里以阿里云CodeUp为例需要配置的凭据是：
+
+  - Username：阿里云帐号用户名或邮箱
+  - Password：阿里云帐号的密码
+  - ID：自定义，这里我们填写`codeup`
+  - Description：自定义，这里我们填写`CodeUp`
+
+3. 添加好账户密码后，在Credentials中选择我们刚刚添加的凭据。这样子我们就可以在Jenkins中使用Git拉取代码了。
+
+### 仓库多项目配置
+
+由于仓库有多个项目，如`chargeManager`、`guildDataNew1`、`payer`、`vite-project`等，所以我们需要配置多个项目。Jenkins的源码管理配置有集中方式来处理。
+
+#### 稀疏检出（Sparse Checkout）
+
+这种方式只检出你需要的特定项目目录，节省空间和时间。
+
+配置步骤：
+  1. 源码管理 → 选择 Git
+  2. Repository URL: https://codeup.aliyun.com/your-repo.git
+  3. Credentials: 选择你的凭据
+  4. Additional Behaviours → 点击 Add → 选择 Sparse Checkout paths
+  5. Path: 填写你要构建的项目路径，例如：
+     ```text
+     chargeManager
+     guildDataNew1
+     payer
+     vite-project
+     ```
+
+#### 子目录构建
+
+检出整个仓库，但只在特定子目录中构建。
+
+配置步骤：
+  1. 源码管理 → Git
+  2. Repository URL: https://codeup.aliyun.com/your-repo.git
+  3. Additional Behaviours → Add → Check out to a sub-directory
+  4. Local subdirectory for repo: 填写目标目录名
+  5. 在构建脚本中切换到对应项目目录：
+      ```shell
+      cd $WORKSPACE/[项目名]
+      npm install
+      npm run build
+      ```
+
+#### 多个Git仓库配置
+
+如果项目相对独立，可以配置多个Git源。
+
+配置步骤：
+
+1. 源码管理 → Git
+2. 点击 Add Repository 添加多个仓库
+3. 为每个仓库配置不同的：
+   - Repository URL
+   - Branch
+   - Local subdirectory
+
+#### Pipeline方式
+
+使用Jenkinsfile进行更精细的控制。
+
+```shell
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://codeup.aliyun.com/your-repo.git',
+                        credentialsId: 'your-credentials-id'
+                    ]],
+                    extensions: [
+                        [$class: 'SparseCheckoutPaths', 
+                         sparseCheckoutPaths: [
+                             [path: 'project-a/*'],
+                             [path: 'shared-libs/*']
+                         ]
+                        ]
+                    ]
+                ])
+            }
+        }
+        
+        stage('Build Project A') {
+            steps {
+                dir('project-a') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+    }
+}
+```
+
+我比较喜欢使用Pipeline方式，因为可以更精细的控制构建过程。
