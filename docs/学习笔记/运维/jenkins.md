@@ -142,7 +142,7 @@ Jenkins主目录位于 `~/.jenkins` 目录下。(即`/Users/hong/.jenkins`)
 
 ## 仓库多项目配置
 
-由于仓库有多个项目,如`chargeManager`、`guildDataNew1`、`payer`、`vite-project`等,所以我们需要配置多个项目。Jenkins的源码管理配置有几种方式来处理。
+由于仓库有多个项目,如`project-a`、`project-b`、`project-c`等,所以我们需要配置多个项目。Jenkins的源码管理配置有几种方式来处理。
 
 ### 稀疏检出(Sparse Checkout)
 
@@ -155,10 +155,9 @@ Jenkins主目录位于 `~/.jenkins` 目录下。(即`/Users/hong/.jenkins`)
   4. Additional Behaviours → 点击 Add → 选择 Sparse Checkout paths
   5. Path: 填写你要构建的项目路径,例如:
      ```text
-     chargeManager
-     guildDataNew1
-     payer
-     vite-project
+    project-a
+    project-b
+    project-c
      ```
 
 ### 子目录构建
@@ -416,10 +415,9 @@ Finished: FAILURE
 
 将path设置为需要检出的项目目录,例如:
 ```text
-chargeManager
-guildDataNew1
-payer
-vite-project
+project-a
+project-b
+project-c
 ```
 
 保存配置,重新构建即可。
