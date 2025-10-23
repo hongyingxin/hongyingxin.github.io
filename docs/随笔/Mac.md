@@ -438,3 +438,118 @@ pipeline {
 ```
 
 我比较喜欢使用Pipeline方式，因为可以更精细的控制构建过程。
+
+### 问题3
+
+```bash
+ERROR: Error fetching remote repo 'origin'
+Finished: FAILURE
+```
+
+在构建过程中出现这个错误，失败原因是Git fetch操作超时了。
+
+出现这个问题，主要有两个原因：
+
+1. Git fetch超时：操作在10分钟后超时（ERROR: Timeout after 10 minutes）
+2. 仓库过大：从日志可以看到远程仓库提示"当前仓库较大，建议使用「部分克隆」按需下载文件"，差不多有1G大小
+
+解决：
+
+1. 使用浅克隆（Shallow Clone）
+
+在 Jenkins job > Source Code Management > Additional Behaviours > Advanced clone behaviours。
+
+将`Timeout`选项设置为30分钟，将超时时间设置为30分钟（默认10分钟）；然后将`Shallow clone`勾选，启动浅克隆，只下载最近的提交历史；最后`Shallow clone depth`设置为1，只获取最新的一个提交历史。
+
+2. 使用部分克隆（Sparse Checkout）
+
+在 Jenkins job > Source Code Management > Additional Behaviours > Sparse Checkout paths
+。
+
+将path设置为需要检出的项目目录，例如：
+```text
+chargeManager
+guildDataNew1
+payer
+vite-project
+```
+
+保存配置，重新构建即可。
+
+
+### node安装
+
+### 归档机制
+
+Jenkins默认不会自动归档构建产物。
+
+虽然我们上文提到`jobs`目录是构建历史目录，它只会保存构建日志（log）、构建配置（build.xml）、变更记录（changelog.xml），构建产物需要我们手动配置。
+
+**为什么不自动归档**
+
+- 磁盘空间考虑 - 构建产物可能很大，自动归档会快速消耗磁盘空间
+- 灵活性 - 不是所有项目都需要保存构建产物
+- 性能 - 避免不必要的文件复制操作
+- 安全 - 让用户明确指定哪些文件需要保存
+
+**Jenkins的设计理念**
+
+```text
+Workspace (工作区) → 临时存储，可能被清理
+     ↓ (需要手动配置)
+Archive (归档区) → 永久保存构建产物
+```
+
+**常见的归档配置**
+
+1. Archive Artifacts (最常用)
+
+```text
+Post-build Actions → Archive the artifacts
+Files to archive: vite-project/build_v/**/*
+```
+
+2. Publish Over SSH (发布到远程服务器)
+
+```text
+Post-build Actions → Send build artifacts over SSH
+```
+
+3. Copy Artifact Plugin (复制到其他Job)
+
+```text
+用于在不同Job之间传递构建产物
+```
+
+**举例**
+
+方式1：通过Jenkins UI配置
+
+  - 进入`webDemo` Job配置
+  - 滚动到 Post-build Actions
+  - 点击 Add post-build action
+  - 选择 Archive the artifacts
+  - 在 Files to archive 中填入
+    ```text
+    vite-project/build_v/**/*
+    ```
+  - 保存配置
+
+方式2：在Shell脚本中添加归档命令
+
+修改构建脚本，在最后添加：
+
+```shell
+#!/bin/bash
+cd vite-project
+npm install  
+npm run build
+
+# 手动归档构建产物
+echo "=== 归档构建产物 ==="
+BUILD_ARCHIVE_DIR="/Users/hong/.jenkins/jobs/webDemo/build_v/${BUILD_NUMBER}/archive"
+mkdir -p "$BUILD_ARCHIVE_DIR"
+cp -r build_v/* "$BUILD_ARCHIVE_DIR/"
+echo "构建产物已归档到: $BUILD_ARCHIVE_DIR"
+ls -la "$BUILD_ARCHIVE_DIR"
+```
