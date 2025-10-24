@@ -20,4 +20,36 @@ qshell --version
 qshell help
 ```
 
+## 配置
+
+我们还需要配置一下账户信息
+
+```shell
+# 配置账户信息
+qshell account <AccessKey> <SecretKey> <Bucket>
+
+# 查看账户信息
+qshell account
+
+# 列出所有账户信息
+qshell account list
+```
+
+**根据官方文档，以下命令对文件夹操作很有用：**
+- listbucket：列举存储空间中的文件
+- fput：上传单个文件
+- qupload：批量上传文件
+- rput：以分片上传的方式上传文件
+- qdownload：批量下载文件（可按前缀下载整个"文件夹"）
+
+因为七牛云对象存储中没有真正的“文件夹”概念，文件夹实际上是通过文件名中的路径前缀来模拟额度。当我们上传文件时，在文件名中包含路径分隔符`/`，就会在控制台中显示为文件夹结构。
+
+我们在本地创建一个名为`test.txt`文件，并上传到七牛云对象存储。
+```shell
+echo "Hello, World!" > test.txt
+qshell fput <Bucket> my-test/test.txt ./test.txt
+```
+
+上传成功后，我们就可以在七牛云对象存储中看到我们上传的文件。
+
 参考：https://developer.qiniu.com/kodo/1302/qshell
