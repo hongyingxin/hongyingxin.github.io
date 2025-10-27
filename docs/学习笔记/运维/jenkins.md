@@ -422,3 +422,36 @@ project-c
 
 保存配置,重新构建即可。
 
+## 发布流程
+
+1. 构建阶段（Jenkins服务器上）
+
+```bash
+# 拉取代码 → 安装依赖 → 构建项目 → 打包压缩
+npm install
+npm run build
+zip -r build_v.zip ./build_v
+```
+
+2. 上传到七牛云（作为文件分发中心）
+
+```shell
+qshell qupload2 --src-dir=${Source_Path}/${Service_Name} --bucket=${bucket} --key-prefix=${Service_Name}/ --overwrite
+```
+
+3. 部署到目标服务器
+
+    a. 文件同步到服务器
+    ```shell
+    # 使用prsync并行同步文件到多台服务器
+    prsync -H "${Remote_Host}" -arvz ${Source_Path}/${Service_Name} ${Remote_Path}/${Service_Name}
+    ```
+    b. 在服务器上解压部署
+    ```shell
+    # 远程执行解压命令
+    pssh -H "${Remote_Host}" -l root -i "cd /data/static/;unzip -q -o -d /data/static/ /data/static/${Service_Name}.zip"
+    ```
+
+这里七牛云的作用，主要是备份存储，保存构建产物，便于回滚；也作为CDN分发，加速静态资源访问；另外也方便多环境部署，不同环境可以从七牛云拉去相同的构建产物。
+
+整个流程是：Jenkins构建 → 七牛云存储 → 服务器部署 → Nginx提供Web服务，七牛云主要起到存储和可选的CDN加速作用。
