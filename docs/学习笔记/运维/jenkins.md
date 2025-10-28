@@ -193,7 +193,7 @@ Jenkins主目录位于 `~/.jenkins` 目录下。(即`/Users/hong/.jenkins`)
 
 使用Jenkinsfile进行更精细的控制。
 
-```shell
+```groovy
 pipeline {
     agent any
     
@@ -455,3 +455,130 @@ qshell qupload2 --src-dir=${Source_Path}/${Service_Name} --bucket=${bucket} --ke
 这里七牛云的作用，主要是备份存储，保存构建产物，便于回滚；也作为CDN分发，加速静态资源访问；另外也方便多环境部署，不同环境可以从七牛云拉去相同的构建产物。
 
 整个流程是：Jenkins构建 → 七牛云存储 → 服务器部署 → Nginx提供Web服务，七牛云主要起到存储和可选的CDN加速作用。
+
+## 流水线
+
+Jenkins 流水线（Pipeline）是一套插件，支持实现和集成 continuous delivery pipelines到Jenkins。
+
+_continuous delivery (CD) pipeline_是你的进程的自动表达，用于从版本控制向用户和客户获取软件。
+
+对Jenkins 流水线的定义被写在一个文本文件中 (成为 Jenkinsfile)。
+
+While定义流水线的语法, 无论是在 web UI 还是在`Jenkinsfile`中都是相同的, 通常认为在`Jenkinsfile` 中定义并检查源代码控制是最佳实践。
+
+`Jenkinsfile`能使用两种语法进行编写 - 声明式和脚本化。
+
+### 流水线概念
+
+流水线是用户定义的一个CD流水线模型 。流水线的代码定义了整个的构建过程, 他通常包括构建, 测试和交付应用程序的阶段 。
+
+#### 节点
+
+节点是一个机器 ，它是Jenkins环境的一部分 and is capable of执行流水线。
+
+另外, `node`块是 脚本化流水线语法的关键部分.
+
+#### 阶段
+
+stage 块定义了在整个流水线的执行任务的概念性地不同的的子集(比如 "Build", "Test" 和 "Deploy" 阶段), 它被许多插件用于可视化 或Jenkins流水线目前的 状态/进展. 
+
+#### 步骤
+
+本质上 ，一个单一的任务, a step 告诉Jenkins 在特定的时间点要做_what_ (或过程中的 "step")。 举个例子,要执行shell命令 ，请使用 sh 步骤: sh 'make'。当一个插件扩展了流水线DSL, 通常意味着插件已经实现了一个新的 step。
+
+### 声明式流水线
+
+在声明式流水线语法中, pipeline 块定义了整个流水线中完成的所有的工作。
+
+```groovy
+// 声明式流水线
+pipeline {
+  // 在任何可用的代理上，执行流水线或它的任何阶段
+    agent any 
+    stages {
+      // 定义“Build”阶段
+        stage('Build') { 
+            steps {
+                // 执行与“Build”阶段相关的步骤
+            }
+        }
+        // 定义“Test”阶段
+        stage('Test') { 
+            steps {
+                // 执行与“Test”阶段相关的步骤
+            }
+        }
+        // 定义“Deploy”阶段
+        stage('Deploy') { 
+            steps {
+                // 执行与“Deploy”阶段相关的步骤
+            }
+        }
+    }
+}
+```
+
+### 脚本式流水线
+
+在脚本化流水线语法中, 一个或多个 node 块在整个流水线中执行核心工作。 虽然这不是脚本化流水线语法的强制性要求, 但它限制了你的流水线的在`node`块内的工作做两件事:
+
+- 通过在Jenkins队列中添加一个项来调度块中包含的步骤。 节点上的执行器一空闲, 该步骤就会运行。
+
+- 创建一个工作区(特定为特定流水间建立的目录)，其中工作可以在从源代码控制检出的文件上完成。
+
+```groovy
+// 脚本式流水线 
+node {
+  // 在任何可用的代理上，执行流水线或它的任何阶段
+  // 定义 "Build" 阶段。 stage 块 在脚本化流水线语法中是可选的。 然而, 在脚本化流水线中实现 stage 块 ，可以清楚的显示Jenkins UI中的每个 stage 的任务子集。
+    stage('Build') { 
+        // 执行与“Build”阶段相关的步骤
+    }
+    stage('Test') { 
+        // 执行与“Test”阶段相关的步骤
+    }
+    stage('Deploy') { 
+        // 执行与“Deploy”阶段相关的步骤
+    }
+}
+```
+
+### 完整的流水线示例
+
+```groovy
+pipeline { 
+    agent any 
+    stages {
+        stage('Build') { 
+            steps { 
+                sh 'make' 
+            }
+        }
+        stage('Test'){
+            steps {
+                sh 'make check'
+                junit 'reports/**/*.xml' 
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'make publish'
+            }
+        }
+    }
+}
+```
+
+### 流水线语法补充
+
+1. `pipeline` 是声明式流水线的一种特定语法，他定义了包含执行整个流水线的所有内容和指令的 "block" 。
+2. `agent`是声明式流水线的一种特定语法，它指示 Jenkins 为整个流水线分配一个执行器 (在节点上)和工作区。
+3. `stage`是一个描述 stage of this Pipeline的语法块。在 Pipeline syntax 页面阅读更多有关声明式流水线语法的`stage`块的信息。如 above所述, 在脚本化流水线语法中，stage 块是可选的。
+4. `steps`是声明式流水线的一种特定语法，它描述了在这个 stage 中要运行的步骤。
+5. `sh`是一个执行给定的shell命令的流水线 step (由 Pipeline: Nodes and Processes plugin提供) 。
+6. `junit`是另一个聚合测试报告的流水线 step (由 JUnit plugin提供)。
+7. `node`是脚本化流水线的一种特定语法，它指示 Jenkins 在任何可用的代理/节点上执行流水线 (和包含在其中的任何阶段)这实际上等效于 声明式流水线特定语法的`agent`。
+
+
+### 参考文档
+[Jenkins Pipeline 教程](https://www.jenkins.io/zh/doc/book/pipeline/#overview)

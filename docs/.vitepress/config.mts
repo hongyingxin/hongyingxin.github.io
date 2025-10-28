@@ -29,7 +29,7 @@ export default defineConfig({
   description: "个人技术博客",
   
   // 忽略死链接检查
-  // ignoreDeadLinks: true,
+  ignoreDeadLinks: false,
   
   // 主题配置
   themeConfig: {
