@@ -109,7 +109,7 @@ Jenkins主目录位于 `~/.jenkins` 目录下。(即`/Users/hong/.jenkins`)
 **如何查看具体构建产物**
 
 我们可以在Jenkins Web界面中:
-- 访问:http://localhost:8080/job/[项目名]/[构建号]/
+- 访问:`http://localhost:8080/job/[项目名]/[构建号]/`
 - 点击 "Workspace" 查看工作空间文件
 - 点击 "Build Artifacts" 查看归档的构建产物
 
@@ -379,7 +379,7 @@ Plugin is missing: ionicons-api (94.vcc3065403257) 在这个页面http://localho
 
 这是一个依赖插件缺失的问题。我们只需要安装缺失的插件(ionicons-api)即可。
 
-- 打开 http://localhost:8080/manage/pluginManager/
+- 打开 `http://localhost:8080/manage/pluginManager/`
 - 点击 "Available" 标签页
 - 在搜索框中输入 "ionicons-api"
 - 勾选 "ionicons-api" 插件
