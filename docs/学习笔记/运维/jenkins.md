@@ -422,6 +422,16 @@ project-c
 
 保存配置,重新构建即可。
 
+## 问题4
+
+个人访问令牌过期。
+
+因为之前配置的阿里云CodeUp个人访问令牌过期了（七天），所以需要重新配置。  
+
+这里我们有两种选择，一种就是重新生成阿里云 Codeup 访问令牌 ；另外一种是 使用 SSH 方式 。
+
+这里推荐使用SSH，因为我多次尝试配置HTTPS方式，都失败了。
+
 ## 发布流程
 
 1. 构建阶段（Jenkins服务器上）
@@ -595,6 +605,62 @@ pipeline {
 4. 在 "Sample Step" 下拉框中选择 "checkout: Check out from version control"
 5. 选择 Git，然后可以看到所有可配置选项
 6. 配置完成后点击 "生成流水线脚本" 即可获得代码
+
+### Jenkins的信息输出方法
+
+1. echo 命令，类似`console.log`
+
+```groovy
+// 简单文本
+echo 'Hello Jenkins'
+
+// 使用变量
+echo "构建编号: ${env.BUILD_NUMBER}"
+
+// 使用表情符号
+echo '✅ 执行成功'
+echo '❌ 执行失败'
+echo '⚠️  警告信息'
+```
+
+2. println 直接打印
+
+```groovy
+script {
+    println "这是一条信息"
+    
+    // 多行输出
+    println """
+    ========== 构建详情 ==========
+    项目: ${env.JOB_NAME}
+    编号: ${env.BUILD_NUMBER}
+    ==============================
+    """
+}
+```
+
+3. sh 命令中的echo
+
+```groovy
+sh 'echo "在 Shell 中输出信息"'
+
+sh '''
+    echo "========== 开始执行 =========="
+    echo "当前用户: $(whoami)"
+    echo "当前路径: $(pwd)"
+'''
+```
+
+4. 带颜色的输出（使用ANSI Color Plugin）
+
+```groovy
+// 需要安装 AnsiColor 插件
+ansiColor('xterm') {
+    echo '\033[32m绿色文本 - 成功\033[0m'
+    echo '\033[31m红色文本 - 错误\033[0m'
+    echo '\033[33m黄色文本 - 警告\033[0m'
+}
+```
 
 ### 参考文档
 [Jenkins Pipeline 教程](https://www.jenkins.io/zh/doc/book/pipeline/#overview)
