@@ -579,6 +579,22 @@ pipeline {
 6. `junit`是另一个聚合测试报告的流水线 step (由 JUnit plugin提供)。
 7. `node`是脚本化流水线的一种特定语法，它指示 Jenkins 在任何可用的代理/节点上执行流水线 (和包含在其中的任何阶段)这实际上等效于 声明式流水线特定语法的`agent`。
 
+### 片段生成器
+
+片段生成器是Jenkins提供的一个工具，可以帮助我们快速生成流水线代码。
+
+我们可以用这个工具完美从UI界面配置过渡到Jenkinsfile流水线配置，而无需手动编写流水线代码。
+
+路径:manage --> pipeline syntax --> 输入关键词 --> 选择片段 --> 生成。
+
+下面是Git拉取代码的示例：
+
+1. 进入 Jenkins 任务页面
+2. 点击左侧菜单 "流水线语法" (Pipeline Syntax)
+3. 选择 "片段生成器" (Snippet Generator)
+4. 在 "Sample Step" 下拉框中选择 "checkout: Check out from version control"
+5. 选择 Git，然后可以看到所有可配置选项
+6. 配置完成后点击 "生成流水线脚本" 即可获得代码
 
 ### 参考文档
 [Jenkins Pipeline 教程](https://www.jenkins.io/zh/doc/book/pipeline/#overview)
