@@ -379,7 +379,50 @@ initVideo() {
 
 ### 6. 完整流程
 
+```text
+play() 调用
+    ↓
+useFrameCallback = false (不支持或未开启accurate)
+    ↓
+this.requestAnim = requestAnimFunc() 返回的函数
+    ↓
+video.play() 开始播放视频
+    ↓
+触发 'playing' 事件
+    ↓
+onplaying() 执行
+    ↓
+this.drawFrame(null, null) 手动启动
+    ↓
+this.requestAnim(this._drawFrame) 
+    ↓
+requestAnimationFrame(() => {
+  if (满足fps条件) {
+    return cb();  // 执行 this.drawFrame()
+  } else {
+    继续等待下一帧
+  }
+})
+    ↓
+drawFrame() 被执行 (WebglRenderVap 重写的版本)
+    ↓
+渲染当前帧 + 调用 super.drawFrame()
+    ↓
+super.drawFrame() 又调用 this.requestAnim(this._drawFrame)
+    ↓
+形成循环...
+```
+
 ![完整流程](/public/assets/vap_5.png)
+
+### 7. play()方法执行流程梳理
+
+在不支持requestVideoFrameCallback或没开启accurate的情况下：
+1. this.requestAnim 是一个由 requestAnimFunc() 返回的函数
+2. cb 参数 是 this.drawFrame.bind(this)，即绑定了上下文的 drawFrame 方法
+3. return cb() 实际执行的是 this.drawFrame()，触发新一轮的渲染
+4. 循环机制 通过 drawFrame → requestAnim → cb() → drawFrame 形成无限循环
+5. fps控制 通过帧计数或时间间隔来控制实际的渲染频率
 
 ## 总结
 
@@ -398,3 +441,169 @@ if (index % frameInterval === 0) {
   return cb();
 }
 ```
+
+## 视频转Canvas 11月6补充
+
+过了一段时间回看这篇文章的过程中，发现视频转成Canvas的逻辑很有意思，这里补充一下。
+
+这里主要涉及到`video.ts`，`webgl-render-vap.ts`这两个文件。
+
+### 1. 元素创建和初始化
+
+```javascript
+// 1. 创建隐藏的video元素 (video.ts)
+initVideo() {
+  let video = this.video;
+  if (!video) {
+    video = this.video = document.createElement('video');
+  }
+  video.style.display = 'none';  // 🔑 关键：视频元素是隐藏的
+  document.body.appendChild(this.video);  // 添加到DOM但不可见
+}
+
+// 2. 创建Canvas元素 (webgl-render-vap.ts)
+initWebGL() {
+  if (!canvas) {
+    canvas = document.createElement('canvas');  // 🎯 创建Canvas
+  }
+  canvas.width = width || w;
+  canvas.height = height || h;
+  this.container.appendChild(canvas);  // 🔑 Canvas添加到用户指定容器
+  
+  // 获取WebGL上下文
+  gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+}
+```
+
+### 2. WebGL纹理初始化
+
+```javascript
+// 3. 创建视频纹理对象 (webgl-render-vap.ts)
+initVideoTexture() {
+  // 创建专门用于视频的纹理
+  if (!this.videoTexture) {
+    this.videoTexture = glUtil.createTexture(gl, 0);  // 纹理单元0
+  }
+  
+  // 绑定到着色器
+  const sampler = gl.getUniformLocation(program, `u_image_video`);
+  gl.uniform1i(sampler, 0);
+  gl.activeTexture(gl.TEXTURE0);
+}
+```
+
+### 3. 关键的视频数据传输
+
+这是最核心的环节，在每一帧渲染时发生
+
+```javascript
+// 3. 创建视频纹理对象 (webgl-render-vap.ts)
+initVideoTexture() {
+  // 创建专门用于视频的纹理
+  if (!this.videoTexture) {
+    this.videoTexture = glUtil.createTexture(gl, 0);  // 纹理单元0
+  }
+  
+  // 绑定到着色器
+  const sampler = gl.getUniformLocation(program, `u_image_video`);
+  gl.uniform1i(sampler, 0);
+  gl.activeTexture(gl.TEXTURE0);
+}
+```
+
+### 核心技术
+
+**gl.textImage2D**
+
+gl.texImage2D 的魔法
+
+```javascript
+gl.texImage2D(
+  gl.TEXTURE_2D,        // 目标：2D纹理
+  0,                    // 级别：0（基础级别）
+  gl.RGB,               // 内部格式：RGB
+  gl.RGB,               // 源格式：RGB
+  gl.UNSIGNED_BYTE,     // 数据类型：无符号字节
+  video                 // 🎯 数据源：HTML Video元素
+);
+```
+
+这行代码的作用：
+
+- 直接从`<video>`元素读取当前帧的像素数据
+- 将视频帧数据上传到GPU纹理内存
+- 每次调用都会获取视频的当前帧
+
+**数据流向图**
+
+```text
+MP4视频文件
+    ↓ (浏览器解码)
+HTML Video元素 (隐藏)
+    ↓ (gl.texImage2D每帧读取)
+WebGL纹理内存
+    ↓ (着色器处理)
+分离RGB和Alpha通道
+    ↓ (WebGL渲染)
+Canvas元素 (可见)
+    ↓ (用户看到)
+带透明效果的动画
+```
+
+**WebGL着色器的处理**
+
+视频数据传输到纹理后，着色器负责分离RGB和Alpha：
+
+```javascript
+// 片元着色器中的处理
+void main() {
+  // 从视频纹理读取RGB数据
+  vec4 rgbColor = texture2D(u_image_video, v_texcoord);
+  
+  // 从视频纹理的Alpha区域读取透明度数据
+  vec4 alphaColor = texture2D(u_image_video, v_alpha_texCoord);
+  
+  // 合成最终颜色：RGB + Alpha
+  gl_FragColor = vec4(rgbColor.r, rgbColor.g, rgbColor.b, alphaColor.r);
+}
+```
+
+**完整的渲染管线**
+
+```bash
+每帧渲染循环：
+┌─────────────────────────────────────┐
+│ 1. drawFrame() 被调用               │
+├─────────────────────────────────────┤
+│ 2. 计算当前帧号                      │
+│    video.currentTime * fps          │
+├─────────────────────────────────────┤
+│ 3. 获取融合动画数据                  │
+│    vapFrameParser.getFrame()        │
+├─────────────────────────────────────┤
+│ 4. 🎯 视频转纹理 (关键步骤)          │
+│    gl.texImage2D(..., video)        │
+├─────────────────────────────────────┤
+│ 5. WebGL渲染                        │
+│    gl.drawArrays()                  │
+├─────────────────────────────────────┤
+│ 6. 输出到Canvas                     │
+│    用户看到最终效果                  │
+└─────────────────────────────────────┘
+```
+
+### 总结
+
+**视频转Canvas的核心环节：**
+
+1. 创建阶段：隐藏video + 可见canvas
+2. 初始化阶段：WebGL上下文 + 视频纹理
+3. 运行阶段：gl.texImage2D(video) 每帧传输
+4. 渲染阶段：着色器处理 + Canvas输出
+
+**关键技术：**
+1. gl.texImage2D 实现视频到纹理的零拷贝传输
+2. WebGL着色器实现RGB/Alpha分离和合成
+3. 每帧同步确保视频和渲染的完美对齐
+
+用户最终看到的Canvas元素实际上是经过WebGL处理后的结果，而原始视频元素始终是隐藏的！
