@@ -70,11 +70,20 @@ export default defineConfig({
         ]
       },
     ],
-
     // 社交链接
     socialLinks: [
       { icon: 'github', link: 'https://github.com/hongyingxin' }
     ],
+    // 全局搜索 algolia
+    // search: {
+    //   provider: 'algolia',
+    //   options: {
+    //     appId: '',
+    //     apiKey: '',
+    //     indexName: '',
+    //     placeholder: '请输入要搜索的内容...'
+    //   }
+    // }
   },
   // vite配置
   vite: {
