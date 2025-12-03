@@ -4,4 +4,5 @@
 
 [变量提升](./变量提升.md)
 
+[intersectionObserver](./intersectionObserver.md)
 
