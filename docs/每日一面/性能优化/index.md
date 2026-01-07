@@ -78,3 +78,33 @@ if (lcpEntries.length > 0) {
   - **Tree Shaking**：剔除无用代码。
   - **减少 DOM 节点**：减少渲染开销和 Diff 成本。
   - **减少 长任务**：避免复杂的 JS 计算阻塞主线程绘制。
+
+## 骨架屏技术
+
+骨架屏是一种在页面加载过程中，先显示一个简单的占位结构，当页面内容加载完成后，再替换为实际内容的展示技术，主要是优化首屏加载过程。
+
+骨架屏的主要作用是：
+
+- 提升用户体验
+- 减少页面闪烁
+- 提高页面加载速度
+
+技术选择方案：
+
+  1. 完全通过HTML和CSS手写（需求修改增加了维护成本）
+
+  2. puppeteer自动化生成骨架屏
+
+爬虫实现骨架屏的核心思想
+
+1.puppeteer 当 Puppeteer 连接到一个 Chromium 实例的时候会通过 puppeteer.launch 或 puppeteer.connect 创建一个 Browser 对象。这个时候你就会获得当前页面的dom结构。
+
+2.获取你需要做骨架屏的dom元素的宽高，你还可以排除一些你不想做骨架屏的元素。
+
+3.已知了宽高，你就可以去改她的背景颜色变成一个灰色的方框，看起来就会像一个骨架屏了
+
+**参考文章：**
+
+- https://juejin.cn/post/6844903696254533640
+- https://github.com/Jocs/jocs.github.io/issues/22
+- https://github.com/ElemeFE/page-skeleton-webpack-plugin/blob/master/docs/i18n/zh_cn.md
