@@ -237,3 +237,11 @@ Fiber 方案，引入了时间切片。它将一个耗时长的更新任务拆�
 - 发布订阅模式：对于极其频繁的状态更新，可以使用useRef配置发布订阅，避免React的渲染流程
 
 - 虚拟列表：使用react-window或 react-virtualized，只渲染用户当前可见区域的DOM节点，极大降低内存占用
+
+## 说说React Jsx转换成真实DOM过程？
+
+- 使用`React.createElement`或`JSX`编写React组件，实际上所有的`JSX`代码最后都会转换成`React.createElement`的函数调用。`Babel`帮助我们完成了这个转换过程。
+
+- `createElement`函数对key和ref等特殊的props进行处理，并获取`defaultProps`对默认props进行赋值，并且对传入的子节点进行处理，最终构造成一个虚拟DOM对象
+
+- `ReactDOM.render`将生成好的虚拟DOM渲染到指定容器上，其中采用了批处理、事物等机制并且对特定浏览器进行了性能优化，最终转换为真实DOM
