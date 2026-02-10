@@ -64,3 +64,44 @@ Cloudflare 是一家全球网络服务商，提供 CDN、DNS、WAF、DDoS 防护
 - 阿里云 回答：“我只负责收钱，解析请去问 Cloudflare。” (这就是你改 NS 的作用)
 - Cloudflare 接手：“ai 这个子域名在我这里有记录，它是一个 Worker，请执行以下代码...”
 - 结果：页面成功打开。
+
+## 模块化架构
+
+采用Module-first架构
+
+按功能模块进行文件夹划分，心智负担低，更强的可扩展性，利于重构。
+
+与之前按文件类型划分的架构不同，pages放所有的页面，components放所有的组件，当项目变大，component文件夹会有几百个文件
+
+## 面试生成报错速度慢的问题
+
+在面试结束生成报告时，因为需要完整的上下文加上分析，导致接口数据非常慢。
+
+1. 这里采用了流式响应，generateContentStream替换generateContent，后端通过sse推送给前端，（接口）
+前端不再等待fetch完成，而是读取response.body（前端）
+
+页面上不再显示loading，增加了一个预览状态，报告没有解析出来前，用户能看到一个代码滚动的效果，实时显示AI正在生成的JSON源码（界面）
+
+2. 替换gemini-2.5-pro为gemini-2.5-flash，启动和生成速度提高5倍，
+
+## SDK遇到的问题
+
+### Gemini要求对话历史的第一条消息必须是user
+
+使用`systemInstruction`。这是最优雅的做法，不需要在history里伪造第一句话，而是把这些放在系统提示词里。
+
+### 关键参数配置
+
+generationConfig参数对象
+
+```js
+{
+  stopSequences: ["用户:"],   // 遇到这个词就强制停止
+  candidateCount: 1,         // 每个问题生成的答案数量
+  maxOutputTokens: 2048,     // 限制回复长度
+  temperature: 0.7,          // 采样温度：0.0 严谨，1.0 奔放
+  topP: 0.95,                // 核采样
+  topK: 40,                  // 采样候选集大小
+  responseMimeType: "application/json" // 2026年主流：强制要求返回 JSON
+}
+```
