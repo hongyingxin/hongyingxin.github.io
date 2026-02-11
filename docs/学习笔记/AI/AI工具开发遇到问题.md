@@ -105,3 +105,23 @@ generationConfig参数对象
   responseMimeType: "application/json" // 2026年主流：强制要求返回 JSON
 }
 ```
+
+## 页面刷新后404问题
+
+前端使用了`React Router`的History模式下，页面刷新后404问题。
+
+这里去修改`Nginx`的配置，通过配置请求转发策略`try_files`解决问题。
+
+**原理：** 
+
+刷新时404，浏览器真的去向服务器请求`https//.../interview/setup`这个文件，但`Nginx`发现在`var/jenkins_home/deploy_web`目录下根本没有这个文件夹，所以就报错了。
+
+通过`try_files`配置，如果请求的文件不存在，则重定向到`index.html`文件。
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+这样，当页面刷新时，就会重定向到`index.html`文件，从而解决问题。  
