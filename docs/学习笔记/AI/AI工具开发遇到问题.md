@@ -125,3 +125,115 @@ location / {
 ```
 
 这样，当页面刷新时，就会重定向到`index.html`文件，从而解决问题。  
+
+## 对话记录和历史记录方案
+
+在很多AI对话的场景里，都会有对话记录和历史记录的需求。这个需求如何实现，在AI工具的开发中，我采用了下面的解决方案：
+
+当我们有多个对话记录以及切换对话后希望能确保对话的上下文一致性，采用了“全量历史回传”和“SDK会话初始化”相结合的机制。
+
+**1. 前端：完整的消息链维护**
+
+在ChatPage.tsx中，维护了一个名为messages的状态数组
+
+发送请求时：每次点击发送，前端并不仅仅发送当前这一条消息，而是将当前会话中所有的历史消息封装成一个数组historyWithUser
+
+持久化：这个数组被完整地保存在IndexDB中。当切换会之前的会话时，会从数据库加载这个完整的数组，确保下一条消息发出去时，依然带着最原始、最完整的历史。
+
+**2. 后端：历史记录的格式化**
+
+在AIController.js中，接收到前端传来的messages数组后，会进行如下处理，这一步确保了发送给Google API的数据结构是严格遵循对话顺序的。
+
+```js
+// 排除最后一条作为当前输入，其余全部转化为 Gemini SDK 要求的历史格式
+const history = messages.slice(0, -1).map(m => ({
+  role: m.role, // 'user' 或 'model'
+  parts: [{ text: m.content }],
+}));
+
+const currentMessage = messages[messages.length - 1].content;
+```
+
+**3. SDK：启动有状态会话**
+
+这是最关键的一步。利用Goodle Gemini SDK提供的 startChat 方法，启动一个有状态的会话。
+
+```js
+const model = this.geminiClient.getModel({ model: modelId });
+// 使用之前的 history 初始化会话
+const chat = model.startChat({ history });
+// 在这个有“记忆”的会话中发送当前消息
+const result = await chat.sendMessageStream(currentMessage);
+```
+
+我并没有让后端或AI侧去存储状态（这在无状态的REST API中很难保证稳定），而是每次请求都把“剧本”历史记录重新传递给AI看一遍。
+
+这样做的优缺点：
+
+- 优点：绝对一致。无论你刷新多少次页面，只要 IndexedDB 里的消息没变，递给 AI 的“剧本”就是一样的，它的理解就不会产生偏差。
+
+- 缺点：随着对话变长，每次发送的 Token 数量会增加（因为历史记录也要占 Token）。
+
+>注：目前市面上几乎所有的 Web 类 Chat 产品（如 ChatGPT、Gemini 官网）在底层都是通过这种回传历史记录的方式来实现上下文记忆的。
+
+## 图片识别功能方案
+
+在AI对话中，除了简单的文本对话，还需要支持图片识别功能。这个功能主要使用`Gemini`的多模态能力。
+
+**整体流程设计**
+
+图片识别作为Chat模块对话上下文的一部分。
+
+- 1. 前端采集：用户通过拖拽、粘贴或点击按钮选择图片。
+
+- 2. 前端预览与压缩：在发送前展示预览图，并进行必要的压缩（Gemini 对图片大小有建议，通常不需要超大图）。
+
+- 3. 数据传输：将图片转为 Base64 编码（或通过 FormData 上传文件），随同文字 Prompt 一起发送给后端。
+
+- 4. 后端处理：后端 NestJS 接收到请求，将图片数据封装成 Gemini SDK 要求的 inlineData 格式。
+
+- 5. AI 推理：调用 Gemini 2.0 模型，利用其视觉能力进行分析。
+
+- 6. 结果返回：通过流式（Stream）将识别和分析结果实时返回给前端。
+
+**具体实现**
+
+- 1. 前端交互
+
+    - 输入框增强：在 ChatPage.tsx 的输入框左侧增加一个“图片”图标按钮。
+
+    - 粘贴支持：监听 onPaste 事件，支持用户直接 Ctrl+V 粘贴截图。
+
+    - 预览卡片：在输入框上方显示待发送图片的缩略图，并提供“删除”按钮。
+
+    - 消息展示：对话记录中，用户发送的消息应包含图片缩略图，点击可查看大图。
+
+- 2. 数据接口说明
+
+Gemini SDK 要求图片数据格式为 inlineData，需要将图片转为 Base64 编码。以如下格式发送
+
+```js
+{
+  inlineData: {
+    data: "base64_string...",
+    mimeType: "image/jpeg"
+  }
+}
+```
+我们需要在 apps/web/src/modules/chat/api.ts 中扩展 ChatMessage 的定义，支持包含图片附件。
+
+- 3. 后端逻辑
+
+在 AiController 中，我们需要调整处理逻辑。Gemini 2.0 的 generateContent 方法支持混合输入（文本块 + 图像块）：
+
+```js
+const result = await model.generateContent([
+  "请分析这张图片中的内容并回答：这是什么？", // 文本 Prompt
+  {
+    inlineData: {
+      data: Buffer.from(file).toString("base64"),
+      mimeType: "image/png"
+    }
+  }
+]);
+```
