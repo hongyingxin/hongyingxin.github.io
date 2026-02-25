@@ -237,3 +237,170 @@ const result = await model.generateContent([
   }
 ]);
 ```
+
+## 配置 Key 解决方案
+
+AI 项目需要支持用户提供自己的 **API Key**。
+
+前端设计比较简单：用户在设置界面填入 API Key，点击保存后，前端将其保存到 `localStorage` 中，后续发起请求时在 `Header` 中携带。
+
+后端则需要新增一个接口来确定 Key 是否有效，这里借助官方提供的模型接口来校验。
+
+比较麻烦的点是如何动态切换 Key，因为一开始的 `onModuleInit` 单例模式不再适用，在调研后总结了三种方案：
+
+**方案一：显式参数传递**
+
+这个方案不再依赖于 `this.genAI` 这个单例属性，而是将 API Key 作为参数传给 `Service` 方法，然后从请求头获取 Key 并传给具体方法。
+
+```js
+// gemini-client.service.ts
+async generateText(prompt: string, customApiKey?: string) {
+  // 如果有 customApiKey 就用它，没有就用环境变量里的
+  const client = customApiKey 
+    ? new GoogleGenerativeAI(customApiKey) 
+    : this.defaultGenAI; // defaultGenAI 在 onModuleInit 初始化
+  
+  const model = client.getGenerativeModel({ model: "gemini-1.5-flash" });
+  // ...
+}
+
+@Post('chat')
+async chat(@Body() body: any, @Headers('x-gemini-api-key') apiKey?: string) {
+  return this.geminiService.generateText(body.prompt, apiKey);
+}
+```
+
+这种方案逻辑清晰，但是需要修改的地方比较多，工程量大，而且调用链路深的话每一层都需要透传 API Key，代码显得冗长。
+
+**方案二：使用 Request Scope**
+
+将 `Service` 声明为 `Scope.REQUEST` 作用域，这样每次请求都会创建一个新的 `Service` 实例，从而实现动态切换 Key。
+
+```js
+@Injectable({ scope: Scope.REQUEST })
+export class GeminiClientService {
+  private client: GoogleGenerativeAI;
+
+  constructor(
+    @Inject(REQUEST) private request: Request,
+    private configService: ConfigService
+  ) {
+    // 构造函数里直接处理
+    const apiKey = this.request.headers['x-gemini-api-key'] as string;
+    const finalKey = apiKey || this.configService.get('GEMINI_API_KEY');
+    this.client = new GoogleGenerativeAI(finalKey);
+  }
+
+  async generateText(prompt: string) {
+    // 直接使用 this.client，不需要关心 key 是哪来的
+    const model = this.client.getGenerativeModel({ model: "..." });
+  }
+}
+```
+
+这种方法虽然免去传参问题，但是性能开销大，每个请求都需要重新创建一个 `Service` 以及依赖的 `Model` 实例，性能不如方案一。
+
+**方案三：使用 AsyncLocalStorage (ALS)**
+
+这是目前 Node.js 社区处理“请求上下文”最优雅的方式（类似 Java 的 `ThreadLocal`）。
+
+具体实现逻辑如下：
+
+- 创建一个中间件（`Middleware`），拦截所有请求。
+- 从 `Header` 提取 API Key 并存入 `ALS`。
+- `Service` 内部通过 `ALS` 获取 API Key。
+
+这种方法既不需要层层透传参数，也不需要 `Request Scope` 的高性能开销。只是实现稍微复杂一点，需要配置中间件。
+
+本项目也是采用这种方案，原因如下：
+
+1. **侵入性极低**：你不需要修改 `InterviewService`、`AiController` 或者任何调用了 `GeminiClientService` 的地方。它们依然像以前一样调用方法，Key 在背后自动流转。
+2. **无状态**：`Service` 依然是单例，我们只是在执行具体方法时，根据当前执行栈的“上下文”来选择 Key。
+3. **可扩展性**：如果你以后想增加“用户自定义模型版本”、“用户自定义 `Temperature`”，都可以直接塞进 `RequestContext`。
+
+### 具体实现
+
+**1. 创建 Context 模块**
+
+首先需要一个地方来定义 `AsyncLocalStorage` 实例。这个实例应该在整个应用中是单例的。
+
+```js
+// apps/api/src/common/context/request-context.ts
+import { AsyncLocalStorage } from 'async_hooks';
+
+export interface IRequestContext {
+  apiKey?: string;
+  // 以后还可以存 userId, traceId 等
+}
+
+export const requestContext = new AsyncLocalStorage<IRequestContext>();
+```
+
+**2. 实现中间件**
+
+中间件负责在请求进来时，从 `Header` 提取 Key 并“开启”存储空间。
+
+```js
+// apps/api/src/common/middleware/context.middleware.ts
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { requestContext } from '../context/request-context';
+
+@Injectable()
+export class ContextMiddleware implements NestMiddleware {
+  use(req: any, res: any, next: () => void) {
+    const apiKey = req.headers['x-gemini-api-key'];
+    
+    // 关键点：将后续的所有执行流包裹在 requestContext.run 中
+    requestContext.run({ apiKey }, () => {
+      next();
+    });
+  }
+}
+```
+
+**3. 重构 GeminiClientService**
+
+这是最优雅的地方：`Service` 不再需要改动任何方法签名（参数），它只需要从“环境”中取 Key。
+
+```js
+// apps/api/src/modules/ai/gemini-client.service.ts
+import { requestContext } from '../../common/context/request-context';
+
+@Injectable()
+export class GeminiClientService {
+  // ... 之前的 defaultGenAI 初始化逻辑 ...
+
+  private getClient(): GoogleGenerativeAI {
+    // 自动从当前请求上下文中获取 Key
+    const context = requestContext.getStore();
+    const customApiKey = context?.apiKey;
+
+    if (customApiKey) {
+      return new GoogleGenerativeAI(customApiKey);
+    }
+    return this.defaultGenAI;
+  }
+
+  async generateText(prompt: string) {
+    // 方法参数依然很干净，不需要显式传 Key
+    const client = this.getClient();
+    const model = client.getGenerativeModel({ model: "..." });
+    // ...
+  }
+}
+```
+
+**4. 注册中间件**
+
+在 `AppModule` 中应用此中间件。
+
+```js
+// apps/api/src/app.module.ts
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ContextMiddleware)
+      .forRoutes('*'); // 拦截所有路由
+  }
+}
+```
