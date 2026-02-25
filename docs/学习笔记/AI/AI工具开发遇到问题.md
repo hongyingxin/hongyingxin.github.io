@@ -407,16 +407,58 @@ export class AppModule implements NestModule {
 
 ## 配置模型方案
 
-跟配置key一样，需要支持用户自定义选择AI模型。
+与配置 Key 一样，系统需要支持用户自定义选择 AI 模型。
 
-后端的方案跟之前的key配置一致：
+后端的方案与之前的 Key 配置一致。前端部分做了进一步优化，将模型列表放入缓存中，采用 **SWR (Stale-While-Revalidate)** 模式。
 
-- 1. 读取缓存：组件加载时，优先从 localStorage 读取并展示模型列表。
-- 2. 后台验证：同时发起 API 请求获取最新列表。
-- 3. 静默更新：如果 API 返回的列表与缓存不同，再更新 UI 并同步到缓存。
-- 4. 强制刷新：只有在 API Key 变更（保存或清除） 时，才强制显示加载状态并完全更新缓存。
+具体流程如下：
 
-这里前端做了下优化，将模型列表放入缓存中。采用SWR模式，即Stale-While-Revalidate (后台更新)策略。
+1. **读取缓存**：组件加载时，优先从 `localStorage` 读取并展示模型列表。
+2. **后台验证**：同时发起 API 请求获取最新列表。
+3. **静默更新**：如果 API 返回的列表与缓存不同，则更新 UI 并同步到缓存。
+4. **强制刷新**：只有在 API Key 变更（保存或清除）时，才强制显示加载状态并完全更新缓存。
 
-在useState初始化时，直接从localStorage读取模型列表，如果列表不存在，则从后端获取。这意味着当用户切换到设置页面时，
-模型列表会立即显示，不再有加载动画的闪烁。
+在 `useState` 初始化时，直接从 `localStorage` 读取模型列表，如果列表不存在，则从后端获取。这意味着当用户切换到设置页面时，模型列表会立即显示，不再有加载动画的闪烁。页面加载时，如果有缓存，会先展示缓存内容，并在后台静默发起请求校验。如果模型列表有变化，UI 会自动平滑更新。
+
+**缓存失效时机**：在保存新 Key 和还原默认时。强制移除旧缓存并显示 `Loading`，确保获取的是新 Key 对应的模型列表。
+
+## AI 会话支持 Markdown 格式和代码高亮
+
+在常见的 Chat 会话中，少不了代码高亮和文档解析。因此 AI 项目也需要实现该功能。这里主要使用了 React 的第三方插件 `react-markdown` 和 `react-syntax-highlighter`。
+
+通过创建通用 Markdown 组件，可以支持 Markdown 格式和代码高亮。实现以下功能点：
+
+- **代码高亮**：支持多种编程语言的语法高亮，并采用了优雅的 `oneLight` 主题。
+- **深度定制样式**：针对 `h1/h2/h3` 标题、列表、引用块（`Blockquote`）和行内代码进行了视觉优化，确保与全站 UI 风格一致。
+- **GFM 支持**：通过 `remark-gfm` 插件支持了表格、任务列表、删除线等 GitHub 特色语法。
+
+集成到 `ChatPage` 模块中后，AI 回复会自动渲染为美观的 Markdown 格式，用户发送的消息则保留为纯文本渲染。
+
+### 后续优化
+
+由于 `react-syntax-highlighter` 的依赖包体积较大，全局引入后的体积高达 2MB，因此这里采用了按需引入的方式，只引入常用的编程语言语法高亮，并将完整的 `Prism` 改为 `PrismLight`。
+
+```js
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+// 导入需要的语言，减少打包体积
+import js from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
+import ts from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
+import python from 'react-syntax-highlighter/dist/esm/languages/prism/python';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import css from 'react-syntax-highlighter/dist/esm/languages/prism/css';
+import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
+import markdown from 'react-syntax-highlighter/dist/esm/languages/prism/markdown';
+// 注册语言
+SyntaxHighlighter.registerLanguage('javascript', js);
+SyntaxHighlighter.registerLanguage('js', js);
+SyntaxHighlighter.registerLanguage('typescript', ts);
+SyntaxHighlighter.registerLanguage('ts', ts);
+SyntaxHighlighter.registerLanguage('python', python);
+SyntaxHighlighter.registerLanguage('py', python);
+SyntaxHighlighter.registerLanguage('json', json);
+SyntaxHighlighter.registerLanguage('css', css);
+SyntaxHighlighter.registerLanguage('bash', bash);
+SyntaxHighlighter.registerLanguage('sh', bash);
+SyntaxHighlighter.registerLanguage('markdown', markdown);
+SyntaxHighlighter.registerLanguage('md', markdown);
+```
