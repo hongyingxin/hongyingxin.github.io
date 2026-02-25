@@ -462,3 +462,56 @@ SyntaxHighlighter.registerLanguage('sh', bash);
 SyntaxHighlighter.registerLanguage('markdown', markdown);
 SyntaxHighlighter.registerLanguage('md', markdown);
 ```
+
+## Service Worker 支持
+
+AI 项目想引入 Service Worker 来实现离线缓存，本次主要围绕“加速加载”和“离线体验”这两个核心目标展开。
+
+因为是 Vite 脚手架，所以这里使用了 `vite-plugin-pwa` 插件，自动生成 Service Worker 文件，并配置了相关参数。其核心原理是采用 Chrome 的 `Workbox` 库，简化了 Service Worker 的编写。
+
+### 实现思路
+
+- **1. 预缓存静态资源**：在 Service Worker 安装阶段，提前缓存所有静态资源，包括 HTML、CSS、JavaScript、图片等。
+- **2. 离线回退**：当用户完全断网时，Service Worker 会拦截请求，并返回缓存的资源。
+- **3. 运行时缓存**：主要针对 API 请求和第三方资源。由于 `Gemini API` 需要实时响应，这里不使用缓存，只对字体、图片等资源使用缓存。
+
+### 具体实现
+
+**1. 核心依赖引入**
+
+在 `apps/web` 下安装 `vite-plugin-pwa` 插件。该插件基于 `Workbox`，提供了开箱即用的 Service Worker 生成和配置能力。
+
+**2. Service Worker 配置 (Vite Config)**
+
+修改 `apps/web/vite.config.ts`：
+
+配置 `VitePWA` 插件。
+
+策略选择：`registerType: 'autoUpdate'` (自动更新，简化用户流程)。
+
+资源预缓存：配置 `globPatterns` 匹配 `**/*.{js,css,html,ico,png,svg}`，确保核心应用代码被缓存。
+
+导航回退：设置 `navigateFallback: 'index.html'`，确保 SPA 路由（如 `/chat`）在离线刷新时能加载主应用。
+
+运行时缓存：配置 `runtimeCaching` 策略，缓存 Google Fonts 或其他必要的 CDN 资源（如有）。
+
+**3. 应用层适配**
+
+- **入口文件注册**：在 `apps/web/src/main.tsx` 或 `App.tsx` 中无需手动编写复杂注册代码，插件会自动注入注册脚本（基于配置）。
+- **离线提示 UI**：
+    - 创建 `apps/web/src/shared/components/OfflineBanner.tsx` 组件。
+    - 使用 `navigator.onLine` 和 `window.addEventListener('online'/'offline')` 监听网络状态。
+    - 当检测到离线时，在页面顶部显示醒目的提示条："当前处于离线模式，功能受限"。
+
+- **API 请求优化**：
+    - 修改 `apps/web/src/shared/api/client.ts`。在发起请求前检查网络状态，若离线则直接抛出 "网络未连接" 错误，避免无效等待。
+
+**4. 验证方案**
+
+使用 Chrome DevTools -> Application -> Service Workers 面板测试：
+
+- 勾选 "Offline" 模拟断网。
+- 刷新页面，验证应用是否能正常加载（从 Service Worker 读取）。
+- 验证 API 请求是否被拦截并提示。
+
+这里遇到一个bug，在离线模式下，`onLine/offline` 事件无法正确监听网络事件，因为我们返回了缓存资源，所以需要发起一次 `fetch` 请求静态资源来判断网络状态。
