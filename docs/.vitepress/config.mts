@@ -35,7 +35,18 @@ export default defineConfig({
   themeConfig: {
     // 导航栏
     nav: [
-      { text: '首页', link: '/' },
+      { text: '个人作品展示', link: '/project.md' },
+      {
+        text: '线上作品',
+        items: [
+          { text: '个人博客', link: 'https://hongyingxin.github.io/' },
+          { text: 'AI助手', link: 'https://my-ai-tool.hongyingxin.com/'},
+          { text: '电影网站', link: 'https://my-nuxy-movie.vercel.app/'},
+          { text: '翻译工具', link: 'https://translator.hongyingxin.com/'},
+          { text: 'React后管', link: 'https://react-admin-inky.vercel.app'},
+          { text: 'Jenkins', link: 'https://jenkins.hongyingxin.com/'}
+        ]
+      },
       { text: '随笔', 
         items: [
           { text: '组件库', link: '/components/index.md' },
