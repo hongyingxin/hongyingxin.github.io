@@ -60,7 +60,6 @@ date: false
 
 ![React后管](/assets/project/react-admin-inky.vercel.app_.png)
 
----
 
 ## 求职信息
 
@@ -72,7 +71,6 @@ date: false
   - **React 生态**：React 18, Next.js, Ant Design, Redux/Zustand
   - **跨端开发**：微信小程序, Electron, 移动端 H5
   - **后端/工程化**：Node.js (NestJS), TypeScript, Jenkins (CI/CD), Vite, Webpack
----
 
 ## 联系方式
 
