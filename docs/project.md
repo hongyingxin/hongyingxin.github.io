@@ -3,9 +3,25 @@ readingTime: false
 date: false
 ---
 
-# 个人项目
+# 个人作品
 
 这里展示了我平时开发的一些个人项目和线上作品。
+
+---
+
+目前正在寻求新的前端开发工作机会，Base广州。
+
+- **工作经验**：7年+ 前端开发经验（2018年至今）
+- **核心技术栈**：
+  - **Vue 生态**：Vue2/3, Nuxt3, Element Plus, Pinia
+  - **React 生态**：React 18, Next.js, Ant Design, Redux/Zustand
+  - **跨端开发**：微信小程序, Electron, 移动端 H5
+  - **后端/工程化**：Node.js (NestJS), TypeScript, Jenkins (CI/CD), Vite, Webpack
+- **联系方式**：如果您对我的背景或项目感兴趣，欢迎通过微信与我联系。
+
+<div style="display: flex; justify-content: flex-start; margin-top: 10px;">
+  <img src="/assets/project/微信图片_20260226182023_76_63.jpg" width="160" alt="微信联系方式" />
+</div>
 
 ## [个人博客](https://hongyingxin.github.io/) <Badge text="积极维护" type="tip" />
 基于 VitePress 构建的个人技术博客，记录学习笔记、面试题和开发经验。
@@ -59,23 +75,3 @@ date: false
 - **预览地址**：[https://react-admin-inky.vercel.app/](https://react-admin-inky.vercel.app/)
 
 ![React后管](/assets/project/react-admin-inky.vercel.app_.png)
-
-
-## 求职信息
-
-目前正在寻求新的工作机会（前端开发 / 全栈开发），以下是我的个人概况：
-
-- **工作经验**：7年+ 前端开发经验（2018年至今）
-- **核心技术栈**：
-  - **Vue 生态**：Vue2/3, Nuxt3, Element Plus, Pinia
-  - **React 生态**：React 18, Next.js, Ant Design, Redux/Zustand
-  - **跨端开发**：微信小程序, Electron, 移动端 H5
-  - **后端/工程化**：Node.js (NestJS), TypeScript, Jenkins (CI/CD), Vite, Webpack
-
-## 联系方式
-
-如果您对我的项目感兴趣，或者有任何问题，欢迎通过微信与我联系。
-
-<div style="display: flex; justify-content: flex-start;">
-  <img src="/assets/project/微信图片_20260226182023_76_63.jpg" width="200" alt="微信联系方式" />
-</div>
