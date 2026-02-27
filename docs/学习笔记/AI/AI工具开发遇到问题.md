@@ -515,3 +515,79 @@ AI 项目想引入 Service Worker 来实现离线缓存，本次主要围绕“�
 - 验证 API 请求是否被拦截并提示。
 
 这里遇到一个bug，在离线模式下，`onLine/offline` 事件无法正确监听网络事件，因为我们返回了缓存资源，所以需要发起一次 `fetch` 请求静态资源来判断网络状态。
+
+## 流式响应具体实现
+
+流式响应主要用于面试反馈报告的生成。由于AI生成完整的评估报告需要较长时间，如果采用传统的一问一答模式，用户等待时间过长。
+
+SSE是基于HTTP的一种轻量级、只读的通信协议。它规定了数据格式Content-Type 必须是 text/event-stream，报文格式必须以data:开头，以\n\n两个换行符结尾，并且它是长连接，需要显式断开。
+
+**核心思想：**AI每产出一个字或者一个数据块，后端就立即将其推送给前端，前端实时更新界面。
+
+### 后端实现
+
+后端通过SSE(Server-Sent Events)技术实现流式推送
+
+**控制器层：**使用NestJs提供的@Sse()装饰器定义一个SSE接口。它要求返回一个Observable(响应式流)。
+
+```js
+// apps/api/src/modules/interview/interview.controller.ts
+@Post('feedback/stream')
+@Sse()
+getFeedbackStream(@Body() body: any) {
+  return this.interviewService.getFeedbackStream(body.history, body.config);
+}
+```
+
+**服务层：**调用 Google Gemini API 的 generateContentStream 方法获取原始 AI 流，并将其封装成RxJS 的 Observable 发送给前端
+
+```js
+// apps/api/src/modules/interview/interview.service.ts
+// 调用 Gemini 的流式接口
+const result = await evaluationModel.generateContentStream(prompt);
+
+return new Observable((subscriber) => {
+  (async () => {
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      // 以 SSE 要求的格式发送数据块
+      subscriber.next({ data: { text: chunkText } } as MessageEvent);
+    }
+    subscriber.complete();
+  })();
+});
+```
+
+### 前端实现
+
+为传统的 EventSource 只支持GET请求和没法自定义Header，使用WebSocket不适合这种场景，所以前端使用了原生的 fetch API 结合 ReadableStream 来手动解析流数据。
+
+与axios.get()和response.json()不同，它们在底层其实也用了 reader，直到所有的二进制数据都下载完了才一次性返序列化，而response.body.getReader()能提前拿到数据
+
+**API 封装：**在 client.stream 方法中，通过 response.body.getReader() 读取二进制，并使用 TextDecoder 解码成字符串。为了处理粘包与拆包问题，我们创建了一个缓冲区，通过“拼接+寻找边界+截取与循环”解决这个问题
+
+```js
+// apps/web/src/shared/api/client.ts
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+let buffer = '';
+while (true) {
+  const { done, value } = await reader.read(); // 读取一块数据
+  if (done) break;
+  buffer += decoder.decode(value, { stream: true });
+}
+```
+
+**业务调用：**
+
+```js
+// apps/web/src/modules/interview/api.ts
+getFeedbackStream: async (history, config, onChunk) => {
+  let fullText = '';
+  await client.stream('/ai/feedback/stream', { history, config }, (chunkText) => {
+    fullText += chunkText; // 累加文本
+    onChunk(fullText);     // 更新 UI 状态
+  });
+  return fullText;
+}
+```
