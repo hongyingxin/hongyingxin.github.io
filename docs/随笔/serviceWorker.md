@@ -123,7 +123,11 @@ self.addEventListener("fetch", (event) => {
 
 ### 1. 仅缓存
 
+这种策略直接无视网络，只从缓存中读取数据，适合缓存静态资源(如Logo、固定的图标、基础CSS/JS)。
+
 ![Excel Image](/public/assets/w_1.png)
+
+工作流程：请求 -> Service Worker -> 缓存。如果缓存中没有，请求就会失败。
 
 当 Service Worker 控制页面时，匹配的请求只会进入缓存。这意味着，所有缓存的资源都需要先预缓存，然后才能使用该模式。在更新 Service Worker 之前，这些资源永远不会在缓存中更新。
 
@@ -131,11 +135,15 @@ self.addEventListener("fetch", (event) => {
 
 ![Excel Image](/public/assets/w_2.png)
 
-这种与仅缓存相反，请求通过 Service Worker 传递到网络，而无需与 Service Worker 缓存进行任何交互。当用户离线时，此方法将始终无效。
+这种与仅缓存相反，请求通过 Service Worker 传递到网络，而无需与 Service Worker 缓存进行任何交互。当用户离线时，此方法将始终无效。适合对实时性要求极高的数据，例如：余额、积分、订单状态等。
+
+工作流程：请求 -> Service Worker -> 网络。如果网络请求失败，请求就会失败。
 
 ### 3. 先缓存，然后回退到网络
 
 ![Excel Image](/public/assets/w_3.png)
+
+PWA最常用的策略之一，优先追求加载速度。
 
 这是一个绝佳的策略，适用于所有静态资源（例如 CSS、JavaScript、图片和字体），尤其是采用哈希技术的算法。它通过绕过 HTTP 缓存可能启动的任何服务器的内容新鲜度检查，来提高不可变资源的速度。更重要的是，所有缓存的资源都将可以离线使用。
 
@@ -158,6 +166,8 @@ self.addEventListener("fetch", (event) => {
 
 ### 5. 过时重新验证
 
+这是用户体验最平衡的策略，它既保证了响应速度，又保证了背景更新。
+
 ![Excel Image](/public/assets/w_5.png)
 
 在到目前为止我们介绍过的策略中，是最复杂的。从某些方面来看，它与后两种策略类似，但该过程会优先考虑对资源的访问速度，同时在后台保持最新状态。这个策略非常适合需要更新的一些重要信息，但并非至关重要。想像一下社交媒体网站的头像。这些信息会在用户进行适当操作时进行更新，但并非每个请求都绝对要求使用最新版本。
@@ -177,6 +187,58 @@ Application 面板中的 Service Workers 标签页是 DevTools 中检查和调�
 Cache Storage 标签页提供了一个已使用（服务工作线程）Cache API 缓存的只读资源列表。
 
 ![Excel Image](/public/assets/w_7.png)
+
+## Workbox
+
+Workbox 是 Google 推出的一套 JavaScript 库，旨在简化 Service Worker 的开发。
+
+Workbox 的功能模块化非常清晰，主要解决以下几个痛点：
+
+1. 路由与策略 (Routing & Strategies)
+
+正如你之前了解的五种策略，在 Workbox 中实现它们只需要几行代码。它提供了一个 registerRoute 方法，可以根据 URL 的正则或后缀匹配，自动应用特定的缓存策略。
+
+2. 预缓存 (Precaching)
+
+这是 PWA 的核心。Workbox 可以配合 Webpack、Vite 或 CLI 工具，在构建阶段自动生成一个资源清单，并在 Service Worker 安装时提前下载这些核心文件（如 index.html, app.js）。
+
+这里需要首次联网访问页面，才能后台下载资源清单，离线可用。并不需要把所有页面都点开过才能离线访问，只需联网访问一次。
+
+好处：确保应用在离线时也能瞬间打开。
+
+智能更新：只有内容发生变化的资源才会被重新下载。
+
+3. 缓存管理 (Cache Expiration)
+
+原生 API 很难手动控制缓存的大小。Workbox 的 workbox-expiration 模块可以让你轻松设置：
+
+数量限制：缓存最多保留 50 张图片。
+
+时间限制：缓存有效期为 30 天，过期自动清理。
+
+4. 后台同步 (Background Sync)
+
+如果你在离线时发送了一个 POST 请求（比如发帖或点赞），workbox-background-sync 会把请求排队，并在用户恢复网络连接时自动重新发送，确保数据不丢失。
+
+## PWA
+
+PWA (Progressive Web App)，全称“渐进式 Web 应用”。把网页包装成一个APP。
+
+1. 可靠
+
+通过 Service Worker 实现。即便断网或网络极差，应用也能秒开。
+
+2. 快速
+
+由于资源都在本地缓存，消除了网络延迟，交互非常流畅，没有白屏等待。
+
+3. 沉浸式体验
+
+- Manifest (清单文件)：一个 JSON 文件，定义了应用的图标、启动页颜色。
+
+- 可安装性：在 Chrome 或 Safari 上，你可以点击“添加到主屏幕”。它会像 App 一样有个图标，点开后没有浏览器地址栏，全屏运行。
+
+- 推送通知：像原生 App 一样给用户发消息。
 
 ## 拓展
 
