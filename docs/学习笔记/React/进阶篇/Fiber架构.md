@@ -12,8 +12,6 @@ JavaScript 引擎和页面渲染引擎两个线程时互斥的，当其中一个
 
 ## Fiber 是什么
 
-Fiber 的中文翻译叫纤程，与进程、线程同为程序执行过程，Fiber 就是比线程还要纤细的一个过程。纤程意在对渲染过程实现进行更加精细的控制。
-
 React Fiber 是 Facebook 花费两年余时间对 React 做出的一个重大改变与优化，是对 React 核心算法的一次重新实现。从Facebook在 React Conf 2017 会议上确认，React Fiber 在React 16 版本发布
 
 在react中，主要做了以下的操作：
@@ -195,3 +193,79 @@ Renderer根据Reconciler为虚拟 DOM 打的标记，同步执行对应的 DOM �
 - render/reconciliation 协调阶段(可中断/异步)：通过 Diff 算法找出所有节点变更，例如节点新增、删除、属性变更等等, 获得需要更新的节点信息，对应早期版本的 Diff 过程。
 
 - commit 提交阶段(不可中断/同步)：将需要更新的节点一次过批量更新，对应早期版本的 patch 过程。
+
+## 总结
+
+上文是作者根据网上的资料整理而成的，看起来文邹邹也不好记忆，于是我整理了一份简洁的，从设计动机、底层结构、运行循环、以及调度优先级这四个核心概念来总结 Fiber 架构。
+
+### 设计动机
+
+从“递归”到“链表”的数据结构
+
+在 Fiber 之前，React 遍历 VDOM 使用的是递归。递归一旦开始，调用栈（Stack）就必须执行到底，无法中途跳出。
+
+Fiber 把 VDOM 树转换成了线性链表结构。每个 Fiber 节点不仅保存了组件信息，还保存了三个关键指针：
+
+- child: 指向第一个子节点。
+
+- sibling: 指向右侧第一个兄弟节点。
+
+- return: 指向父节点。
+
+有了这三个指针，React 就可以通过 while 循环来遍历树。执行完一个任务后，如果主线程忙，React 可以直接记录下当前的 Fiber 节点，暂时退出循环，等空闲了再回来继续。
+
+### 底层结构
+
+双缓存机制
+
+为了保证渲染的连续性，React 同时维护两棵 Fiber 树：
+
+1. Current Tree (当前树)：对应当前屏幕上显示的 UI。
+
+2. workInProgress Tree (工作树)：正在内存中构建的新树。
+
+运行流程：
+
+- 当更新触发时，React 会根据 current 树克隆出 workInProgress 树。
+
+- 所有的 Diff 算法、副作用标记（Effect Tag）都在 workInProgress 树上完成。
+
+- Commit 阶段：一旦工作树构建完成，React 只需将根节点的指针从 current 指向 workInProgress，瞬间完成 UI 切换
+
+### 运行循环
+
+这是 Fiber 能够实现“可中断”的关键点。React 将工作分成了性质截然不同的两个阶段：
+
+1. Render 阶段 (可中断)
+
+  - 目标：生成一棵带有副作用标记（如 Insertion, Update, Deletion）的 Fiber 树。
+
+  - 过程：从根节点开始遍历，利用 shouldYield() 判断是否需要把控制权交还给浏览器。
+
+  - 结果：产生一个“副作用清单”（Effect List）。
+
+2. Commit 阶段 (不可中断)
+
+  - 目标：把所有的变更真正应用到 DOM 上。
+
+  - 过程：执行所有的 DOM 操作、调用 useEffect 或 componentDidMount 等。
+
+  - 特点：为了保证 UI 的一致性，这个阶段必须同步执行，不能被打断。
+
+### 调度优先级
+
+如果说 Fiber 是底层的建筑，那么 Scheduler 就是总指挥。它负责判断现在该干哪件事。
+
+React 为任务定义了不同的优先级 (Lane 模型)：
+
+  1. Immediate: 离散交互（如点击、输入），最高优先级。
+
+  2. User Blocking: 连续交互（如滚动、拖拽）。
+
+  3. Normal: 网络请求、默认更新。
+
+  4. Low/Idle: 预加载、日志记录。
+
+**时间切片 (Time Slicing)：**
+
+Scheduler 会利用浏览器的空闲时间（通常是 5ms 为一帧的切片）来执行 Render 阶段的任务。如果 5ms 用完了，React 会保存进度，把控制权还给浏览器去绘制 UI，下一帧再继续。
