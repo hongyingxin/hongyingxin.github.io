@@ -8,6 +8,7 @@
 
 ## 进阶篇
 1. [性能优化](./进阶篇/performance.md)
+2. [Fiber架构](./进阶篇/Fiber架构.md)
 
 ## 实战篇
 1. [React 后管](./实战篇/index.md)
