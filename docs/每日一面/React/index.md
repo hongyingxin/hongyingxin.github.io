@@ -333,6 +333,213 @@ useEffect(() => {
 
 1. 访问 DOM 元素
 
+对于函数组件中引用DOM元素，可以使用 useRef 来创建一个 ref，并将其绑定到DOM元素上。
+
+```js
+import React, { useRef, useEffect } from 'react';
+
+const MyComponent = () => {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    // 访问 DOM 元素
+    if (inputRef.current) {
+      inputRef.current.focus(); // 例如，设置焦点
+    }
+  }, []);
+
+  return <input ref={inputRef} />;
+};
+```
+
 2. 使用 forwardRef 转发 ref
 
+要在函数组件中访问子组件的 DOM 元素或通过 ref 传递组件实例，可以使用 React.forwardRef 来转发 ref。
+
+```js
+import React, { forwardRef, useRef, useImperativeHandle, useEffect } from 'react';
+
+// 子组件使用 forwardRef 来接收父组件的 ref
+const ChildComponent = forwardRef((props, ref) => {
+  const localRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (localRef.current) {
+        localRef.current.focus();
+      }
+    }
+  }));
+
+  return <input ref={localRef} />;
+});
+
+// 父组件使用 ref 来访问子组件的方法
+const ParentComponent = () => {
+  const childRef = useRef();
+
+  useEffect(() => {
+    // 调用子组件的 focus 方法
+    if (childRef.current) {
+      childRef.current.focus();
+    }
+  }, []);
+
+  return <ChildComponent ref={childRef} />;
+};
+```
+
 3. useImperativeHandle 的作用
+
+useImperativeHandle 钩子允许你定制通过 ref 访问的实例值。例如，可以将特定的方法暴露给父组件，通过 ref 调用这些方法
+
+```js
+import React, { useRef, useImperativeHandle, forwardRef } from 'react';
+
+const CustomInput = forwardRef((props, ref) => {
+  const localRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      localRef.current.focus();
+    }
+  }));
+
+  return <input ref={localRef} {...props} />;
+});
+
+const ParentComponent = () => {
+  const inputRef = useRef();
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  return (
+    <div>
+      <CustomInput ref={inputRef} />
+      <button onClick={handleClick}>Focus Input</button>
+    </div>
+  );
+};
+```
+
+## React 的虚拟 DOM
+
+虚拟 DOM 是 React 的核心机制之一。可以把它理解为真实 DOM 的一个轻量级JavaScript对象副本。
+
+### React 为什么使用虚拟 DOM？
+
+React 引入 VDOM 并不是因为它比原生 DOM 操作快，而是为了解决以下核心问题：
+
+- **声明式编程：** 不需要手动调用原生DOM API，只需要描述UI状态，React会自动处理DOM操作
+- **跨平台能力：** 因为 VDOM 本质上是一个普通的 JavaScript 对象，可以在任何地方使用，包括服务器端和移动端
+- **批量更新与合并：** React 可以将多个状态更新合并为一个，减少不必要的DOM操作，避免频繁触发浏览器的重排和重绘
+
+### 虚拟 DOM 和真实 DOM 有什么区别？
+
+| 特性 | 虚拟 DOM (VDOM) | 真实 DOM |
+| :--- | :--- | :--- |
+| 本质 | 内存中的 JavaScript 对象。 | 浏览器渲染树的一部分，重量级对象。 |
+| 性能消耗 | 操作快，不涉及 GUI 渲染开销。 | 操作慢，每次改动可能触发重排/重绘。 |
+| 内存占用 | 较小。 | 较大（包含几百个标准属性和方法）。 |
+| 更新方式 | 整体刷新后进行 Diff 算法 对比差异。 | 针对性地增删改查。 |
+
+### 什么时候更新虚拟 DOM
+
+VDOM 的更新通常发生在“协调（Reconciliation）”阶段：
+
+1. 触发阶段：当组件的 state 或 props 发生变化时
+2. 生成新树：React 会重新调用函数组件，生成一颗全新的 VDOM 树
+3. Diff算法：React 会将这颗“新树”与“旧树”进行对比，找出最小的变化差异（即补丁）
+4. 同步到真实DOM：只有找到的差异点会被应用到真实DOM上。
+
+### 虚拟 DOM 的性能如何？
+
+这是一个常见的误区：“虚拟 DOM 比真实 DOM 快”。
+
+实际上，如果你手动写一段极其精简的原生 JS 代码去修改一个节点，它永远比 React 快，因为 React 还要额外运行 Diff 算法。
+
+VDOM 的真正价值在于：
+
+- 保证了性能下限： 即使你写出的代码效率一般，React 也会通过 Diff 算法确保你不会进行全页面的低效 DOM 重建。
+
+- 在大规模应用中胜出： 在复杂的 UI 中，手动维护数千个节点的增删改查极其困难且容易出错。VDOM 自动寻找“最优路径”，在复杂度和性能之间取得了极佳平衡。
+
+## Fiber是什么？
+
+Fiber 是将更新任务碎片化的一种架构。它把大的渲染任务拆分成一个个微小的“工作单元”。
+
+| 特性 | Stack Reconciler (旧) | Fiber Reconciler (新) |
+| :--- | :--- | :--- |
+| 执行模式 | 同步、不可中断。 | 异步、可中断、可恢复。 |
+| 优先级 | 所有更新一视同仁。 | 任务有优先级（如输入反馈 > 数据请求）。 |
+| 数据结构 | 依靠函数调用栈（Stack）。 | 依靠链表结构（Linked List）。 |
+
+### Fiber架构如何实现可中断渲染
+
+Fiber实现可中断的关键在于 时间分片（Time Slicing）。
+
+React 内部有一个调度器（Scheduler）。在处理每一小块Fiber任务之前，它会检查当前帧还剩多少时间。
+
+- 如果有时间：继续处理下一个Fiber节点
+- 如果时间不够或有高优先级任务（如用户点击）：React会保存当前进度，把控制权还给浏览器去渲染UI或处理交互
+- 等浏览器空闲了：React 再回来根据保存的指针继续工作
+
+### 每个Fiber节点包含哪些信息
+
+每一个React元素对应一个Fiber节点，它本质上是一个复杂的 JavaScript 对象，包含：
+- 静态结构信息：type、key
+- 关联关系（链表指针）：
+  - return：指向父节点
+  - child：指向第一个子节点
+  - sibling：指向下一个兄弟节点
+- 状态数据：
+  - pendingProps：下次渲染的props
+  - memoizedProps：上次渲染的props
+  - memoizedState：上次渲染的state
+- 副作用标记：
+  - flags：表示需要执行的副作用操作
+- 调度信息
+  - lanes：表示任务的优先级
+
+### 什么是“work in progress”Fiber树
+
+React 使用了一种叫做 双缓存（Double Buffering） 的技术来确保渲染的流畅性。内存中同时存在两棵 Fiber 树：
+
+1. Current Fiber Tree： 当前屏幕上显示的、真实 DOM 对应的树。
+
+2. Work in Progress (WIP) Tree： 正在内存中构建的、反映最新状态的树。
+
+## 协调过程是什么？
+
+### React是如何比较新旧节点的？
+
+**同层比较**
+React只会对比同一层级的节点，不会跨层级比较。
+- 如果类型不同：React会直接销毁旧树及其子节点，并从头开始构建新树
+- 如果类型相同：React会保留DOM节点，仅对比并更新改变的属性，然后递归地向下对比子节点
+
+**Key的作用**
+- 没有key的情况下，React只能按顺序比较
+- 有key的情况下，在Diff过程中，它会在旧集合中寻找具有相同key的节点
+
+### diff算法的优化原则是什么？
+React的Diff算法基于两个核心假设，将复杂度从 O(n^3) 降低到了 O(n)：
+- 同层比较：两个不同类型的元素会产生不同的树
+- Key引导：通过key属性来识别哪些子元素在不同的渲染下能保持稳定
+### 什么情况下组件会被重用或销毁？
+
+满足以下条件时，组件被重用：
+
+1. 位置相同：节点在Fiber树中的层级和顺序一致
+2. 类型相同：标签名或组件类/函数引用完全一致
+3. Key相同：如果是列表元素，其key必须匹配
+
+满足以下条件时，组件被销毁
+
+1. 类型改变：标签名或组件类/函数引用不一致
+2. Key改变：即使内容完全一样，只要key变了，React也会认为这是一个全新的组件
+3. 节点被移除：在新的渲染结果中，该位置不再有对应节点

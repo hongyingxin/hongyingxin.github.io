@@ -49,6 +49,19 @@ const element = MyComponent({ message: 'Hello' });
 4. **浏览器绘制：** 浏览器重绘屏幕
 5. **副作用执行：** 执行 useEffect 的回调
 
+React 渲染经历以下阶段：
+
+1. 初始渲染阶段
+
+ - JSX 被编译成 React 元素(虚拟DOM)
+ - 构建 Fiber 树，执行组件函数或类的 render 方法
+ - 生成更新对象（Update）
+ - 将变更应用到真实DOM
+
+2. 更新阶段（Reconciliation协调阶段）
+
+- 触发更新（如）
+
 ## 五 Hooks与组件更新
 
 Hooks是函数组件能够拥有状态和生命周期的关键。
