@@ -73,6 +73,8 @@ top: 1
 
 基于 Vercel 部署，国内访问不太稳定。
 
+对应的文字教程：[React 后台管理系统教程](./学习笔记/React/实战篇/index.md)
+
 - **预览地址**：[https://react-admin-inky.vercel.app/](https://react-admin-inky.vercel.app/)
 
 ![React后管](/assets/project/react-admin-inky.vercel.app_.png)
