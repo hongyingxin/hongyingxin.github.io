@@ -874,3 +874,104 @@ useLayoutEffect (同步、阻塞)
 - 特点： 会阻塞页面渲染。它保证了你在副作用里修改 DOM 后，用户只会看到最终的结果。
 
 - 场景： 需要测量 DOM 尺寸或位置并立即修改样式，以防止界面“闪烁”。
+
+## useState 是如何实现的？
+
+useState 是 React 的一个Hook，用于在函数组件中管理状态。useState的实现涉及到React的内部机制，包括状态管理、更新队列和组件的重新渲染。
+
+**实现原理：**
+
+1. 状态的初始化
+
+当调用 useState 时，可以传递一个初始状态值或一个函数用于计算初始状态。React 会将这个初始状态值存储在一个内部的状态容器中，
+
+```js
+const [state, setState] = useState(initialState);
+```
+
+2. 内部数据结构
+
+React 使用一个叫“Hooks List”的数据结构来管理各个组件的 Hook 状态。在每次组件渲染时，React 会使用这个数据结构来跟踪组件的 Hook 调用顺序和状态。
+
+- Fiber 树：每个组件在 React 的 Fiber 树中都有一个与之对应的 Fiber 节点。Fiber 节点包含了该组件的状态信息和相关的 Hook 信息。
+- Hooks 链表：useState 和其他 Hooks 会在 Fiber 节点中按照调用顺序形成一个链表。每个 Hook 记录了其当前的状态值和更新函数。
+
+3. 状态的更新
+
+当调用 setState 时，React会将状态更新请求加入到更新队列中。更新队列是 React 用于管理所有状态变更的机制。每当 setState被调用时，React 会将新的状态值和当前状态进行比较，决定是否需要出发重新渲染。
+
+```js
+function setState(newState) {
+  // 更新队列中加入新的状态值
+  updateQueue.push(newState);
+
+  // 标记 Fiber 节点需要重新渲染
+  scheduleUpdate();
+}
+```
+
+4. 触发重新渲染
+
+在调用 setState 后，React 会安排重新渲染过程。这包括以下几个步骤：
+
+ 1. 调度更新：将更新请求加入调度队列，React 会在适当的时候处理这些更新
+ 2. 重新渲染组件：React 会调用组件函数，执行 useState 和其他 Hook
+ 3. 比较新旧状态：React 会比较新旧状态，计算出哪些组件需要更新
+ 4. 提交更新：将计算好的更新提交到 DOM 中
+
+5. 状态的持久化
+
+在每次组件渲染时，React 会通过 Hooks 链表来保持状态的一致性。即使组件重新渲染，useState 会从 Fiber 节点中获取之前保存的状态值，确保状态在多次渲染中保持不变。
+
+## 说说 React commit 阶段的执行过程
+
+在 React 的 Fiber 架构中，commit 阶段是将更新应用到实际DOM的关键步骤。这个阶段处理在 render 阶段中计算出的所有副作用，并实际更新页面内容。
+
+1. 提交 Fiber 树（commit阶段开始时，React会获取从 render 阶段生成的Fiber树）
+2. 递归遍历 Fiber 树，处理副作用（从根节点遍历Fiber树，副作用包括插入、更新、删除实际 DOM 元素、执行生命周期方法、useEffect和useLayoutEffect的回调）
+3. 应用副作用，执行插入、更新、删除实际 DOM 元素
+4. 调用生命周期方法和执行副作用的回调
+5. 更新 Fiber 树，清理副作用标记
+6. 浏览器进行布局和绘制
+
+## React 中为什么不直接使用 requestIdleCallback？
+
+在React中，使用requestIdleCallback直接可能会导致一些问题，因此React并没有直接采用这个API。requestIdleCallback是一个浏览器提供的API，用于在浏览器空闲时执行任务，但在React中，有一些特殊的考虑：
+
+1. 兼容性和一致性问题： requestIdleCallback 并非所有浏览器都支持，requestIdleCallback的执行时机不是完全可控的，这可能导致在不同环境中表现不一致。React希望提供一致的行为，以确保开发者在不同浏览器和设备上获得可预测的性能表现。
+
+2. 实时性问题： React通常希望能够响应用户输入并立即更新UI，而requestIdleCallback执行的时机不一定能够满足实时性的需求。这可能导致用户体验上的问题，特别是在需要快速响应的场景中。
+
+3. 调度器控制： React内部有一个任务调度器，负责管理和调度任务的执行。直接使用requestIdleCallback可能破坏React的任务调度策略，导致不可预测的结果。
+
+为了解决这些问题，React引入了Scheduler模块，该模块允许React更好地控制任务的调度和执行。React可以根据自身的需要在不同优先级下安排任务，并确保在保证实时性的同时，提供一致的性能表现。
+
+## 如何让 useEffect 支持 async/await？
+
+React 的 useEffect Hook 不支持直接使用 async/await。这是因为 useEffect 的回调函数必须返回一个清理函数(可选),而 async 函数会隐式地返回一个 Promise。
+
+1. 创建一个异步函数，然后执行该函数
+
+```js
+useEffect(() => {
+  const asyncFun = async () => {
+    setPass(await mockCheck());
+  };
+  asyncFun();
+}, []);
+```
+
+2. 使用IIFE（立即执行函数表达式）
+```js
+useEffect(() => {
+  (async () => {
+    setPass(await mockCheck());
+  })();
+}, []);
+```
+
+3. 使用自定义Hook，如ahooks的useAsyncEffect
+```js
+useAsyncEffect(async (isCanceled) => {
+}, []);
+```
