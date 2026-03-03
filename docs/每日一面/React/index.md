@@ -667,3 +667,149 @@ module.exports = {
 1. 权限控制：可以创建一个高阶组件来检查用户权限，并根据权限控制组件的渲染或访问
 2. 数据获取：可以在挂载时获取数据，并将数据传递给原始组件，避免在多个组件中重复数据获取逻辑
 3. 行为增强：可以为组件添加额外的功能，如事件处理、日志记录等
+
+## 受控组件与非受控组件
+
+受控组件：组件的 state 由 React 控制，用户输入的值会同步到 state。
+
+非受控组件：组件的 state 由 DOM 控制，React 不干预。
+
+```js
+// 受控组件
+function ControlledInput() {
+  const [value, setValue] = useState('');
+
+  return (
+    <input 
+      type="text" 
+      value={value} 
+      onChange={(e) => setValue(e.target.value)} 
+    />
+  );
+}
+
+// 非受控组件
+function UncontrolledInput() {
+  const inputRef = useRef();
+
+  const handleSubmit = () => {
+    alert(inputRef.current.value);
+  };
+
+  return (
+    <div>
+      <input type="text" ref={inputRef} />
+      <button onClick={handleSubmit}>Submit</button>
+    </div>
+  );
+}
+```
+
+### 优缺点对比
+
+| 特性 | 受控组件 (Controlled) | 非受控组件 (Uncontrolled) |
+| :--- | :--- | :--- |
+| 优点 | 高度可控：可以即时验证输入、格式化文本（如自动大写）、根据输入实时改变 UI。 | 简单快捷：代码量少，性能略高（不触发 React 重新渲染），适合集成非 React 的第三方库。 |
+| 缺点 | 代码冗余：需要为每个字段写 onChange 和 state；在大表单中可能引起频繁重绘。 | 难以即时反馈：无法做实时校验或根据输入值动态禁用按钮。 |
+| 数据源 | React State | 浏览器 DOM |
+
+### 场景
+
+React 官方通常推荐使用受控组件，因为它更符合 React “数据驱动视图” 的哲学，但在某些特定场景下，非受控组件更具优势。
+
+受控组件：
+
+- 实时验证： 例如输入时检查密码强度、邮箱格式。
+
+- 条件禁用： 例如只有当所有必填项都有值时，提交按钮才亮起。
+
+- 格式化输入： 例如输入信用卡号时自动添加空格。
+
+- 多个输入联动： A 输入框的值决定 B 输入框的可选内容。
+
+非受控组件：
+
+- 简单且巨大的表单： 如果你有几百个输入框，受控组件的频繁渲染可能导致肉眼可见的输入延迟。
+
+- 文件上传 `(<input type="file">)`： 在 React 中，文件输入框始终是非受控的，因为你只能读取文件，不能通过代码设置它的值。
+
+- 快速原型开发： 只是想简单拿个值提交，不想维护一堆 state。
+
+## setState是如何合并更新的？
+
+React 的合并更新（Batching）是性能优化的核心。React 不会因为你连续写了三次 setState 就让浏览器重新渲染三次。核心逻辑如下：
+
+1. 收集更新：当调用 setState 时，React并不会立即修改组件，而是产生一个 Update 对象挂载到 Fiber 节点的队列中
+2. 调度任务：React 发起一个调度任务。由于调度是异步的（利用微任务），代码会继续向下执行
+3. 最终合并：如果是对象式`setState({count: 1})`，React会像`Object.assign`一样浅合并，相同字段以最后一次为准；如果是函数式`setState(prev => prev + 1)`，React 会按顺序排队执行这些函数，确保逻辑累加。
+
+## React 生命周期有哪些？
+
+**挂载（Mounting）**
+
+组件被创建并插入到DOM中的过程。
+
+- constructor()
+
+作用：构造函数，用于初始化组件状态和绑定事件处理函数
+调用时机：组件创建时调用，第一次渲染之前
+
+- static getDerivedStateFromProps()
+
+作用：在每次渲染之前调用，允许组件根据props更新状态
+调用时机：组件创建时和每次更新时调用
+
+- render()
+
+作用：渲染组件的UI，碧玺实现的实现方法
+调用时机：组件的第一次渲染和每次更新时调用
+
+- componentDidMount()
+
+作用：组件挂载完成之后调用。通常用于进行数据获取、订阅或设置DOM操作
+调用时机：组件第一次渲染完成后调用
+
+**更新（Updating）**
+
+组件由于props或state的变化而重新渲染的过程
+
+- static getDerivedStateFromProps()
+
+- shouldComponentUpdate()
+
+作用：用于控制组件是否应该更新。
+调用时机：在组件的props或state变化时调用，决定是否重新渲染组件
+
+- render()
+
+- getSnapshotBeforeUpdate()
+
+作用：在实际DOM更新之前调用，可以获取DOM的状态，以便在componentDidUpdate中使用
+调用时机：组件更新时，在render之后，实际DOM更新之前
+
+- componentDidUpdate()
+
+作用：组件更新完成后调用。可以用于处理更新后的DOM或发送网络请求等
+调用时机：组件更新完成后调用
+
+**卸载（Unmounting）**
+
+组件从DOM中移除的过程。
+
+- componentWillUnmount()
+
+作用：组件卸载前调用。用于清理资源，如取消订阅、清空定时器等
+调用时机：组件被从DOM中移除之前调用
+
+## useEffect 与 useLayoutEffect 有什么区别
+
+这两个Hook的功能非常相似，都用于处理副作用。但它们在执行时机上有本质的区别。这直接影响到用户是否会看到界面闪烁。
+
+- useEffect是异步不阻塞，执行时机在屏幕渲染后，主要用于数据获取、订阅、不操作DOM德逻辑
+- useLayoutEffect是同步阻塞，执行时机在屏幕渲染前，DOM更新后，主要用于读取/修改DOM布局
+
+## 为什么 useState 返回的是数组而不是对象？
+
+useState 返回一个数组而不是对象，主要是为了简化状态管理和更新过程，使得状态的获取和更新更为直观和一致。这个设计决定让 React 的函数式组件更加简洁、易于维护，并减少了潜在的复杂性。
+
+主要是解构赋值的问题
