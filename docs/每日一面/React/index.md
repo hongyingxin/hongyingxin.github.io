@@ -813,3 +813,64 @@ React 的合并更新（Batching）是性能优化的核心。React 不会因为
 useState 返回一个数组而不是对象，主要是为了简化状态管理和更新过程，使得状态的获取和更新更为直观和一致。这个设计决定让 React 的函数式组件更加简洁、易于维护，并减少了潜在的复杂性。
 
 主要是解构赋值的问题
+
+## useEffect
+
+### useEffect的执行逻辑完全取决于它的第二个参数
+
+| 依赖项情况 | 执行时机 | 模拟的生命周期 |
+| :--- | :--- | :--- |
+| 无依赖项 | 每次渲染后都会执行。 | 类似于 componentDidUpdate (无限制版)。 |
+| 空数组 [] | 仅在初次渲染（Mount）后执行一次。 | componentDidMount |
+| 有依赖 [deps] | 初次渲染后，以及任何一个依赖项发生变化后执行。 | 定向的 componentDidUpdate |
+
+### 模拟类组件生命周期
+
+1. 模拟 componentDidMount
+
+```js
+useEffect(() => {
+  console.log("组件挂载了，可以在这里发起 API 请求");
+}, []); // 依赖为空，只跑一次
+```
+
+2. 模拟 componentDidUpdate
+
+```js
+useEffect(() => {
+  console.log("状态或属性变了，UI 已更新");
+}, [count]); // 只有 count 变化时才触发
+```
+
+3. 模拟 componentWillUnmount
+
+```js
+useEffect(() => {
+  const timer = setInterval(() => console.log('Tick'), 1000);
+  
+  return () => {
+    console.log("组件卸载了，清理定时器");
+    clearInterval(timer);
+  };
+}, []);
+```
+
+### useEffect vs useLayoutEffect
+
+这是最容易混淆的一点。核心区别在于：它是阻塞渲染还是在渲染后异步执行？
+
+useEffect (异步、非阻塞)
+
+- 时机： 浏览器完成“布局”和“绘制”之后。
+
+- 特点： 不会阻塞页面渲染。
+
+- 场景： 绝大多数场景（API 请求、日志记录）。
+
+useLayoutEffect (同步、阻塞)
+
+- 时机： DOM 更新后，但浏览器绘制之前。
+
+- 特点： 会阻塞页面渲染。它保证了你在副作用里修改 DOM 后，用户只会看到最终的结果。
+
+- 场景： 需要测量 DOM 尺寸或位置并立即修改样式，以防止界面“闪烁”。
