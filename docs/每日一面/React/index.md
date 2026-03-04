@@ -974,4 +974,23 @@ useEffect(() => {
 ```js
 useAsyncEffect(async (isCanceled) => {
 }, []);
+
 ```
+
+## 简单介绍下React中的 diff 算法
+
+React的Diff算法是Reconciliation(协调)阶段的核心。它的本质是寻找一种高效的算法，将旧的虚拟DOM树转换为新的虚拟DOM树。
+
+- Tree Diff（分层比较）：React只会对比同一层级的节点，不会跨层级比较。
+
+- Component Diff（组件比较）：如果是相同类/函数组件，React会认为它们结构相似，仅更新Props。
+
+- Element Diff（元素比较）：在同一层级的一组子节点中（如列表），React会根据key来识别节点。**双轮遍历**
+
+## React 中的 hooks 和 memorizedState 是什么关系?
+
+- Hooks：React 提供的 API，用于在函数组件中管理状态和副作用。
+
+- MemorizedState：React 内部使用的机制，帮助管理和优化组件的状态，确保状态在渲染间保持一致并优化性能。
+
+Hooks 使得函数组件能够拥有状态和副作用，而 MemorizedState 是 React 内部实现的一部分，用于高效地管理和缓存这些状态和计算结果。
