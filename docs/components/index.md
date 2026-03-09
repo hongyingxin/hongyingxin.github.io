@@ -5,5 +5,6 @@
 ## 目录
 
 - [组件库开发指南](/components/组件库开发指南.md)
+- [组件设计原则](/components/组件设计原则.md)
 - [Vap组件](/components/vap.md)
 - [Svga组件](/components/svga.md)
