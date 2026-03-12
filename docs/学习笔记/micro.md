@@ -6,7 +6,7 @@
 
 ## 2. micro-app
 
-micro-app是由京东推出的一款微前端框架，其核心借鉴WebComponents的思想，通过**js沙箱**、**样式隔离**、**元素隔离**、**路由隔离**模拟实现了**ShadowDom**的隔离特性，并结合**CustomElements**将微前端封装成一个类**WebComponent**组件，从而实现微前端的组件化渲染。
+`micro-app`是由京东推出的一款微前端框架，其核心借鉴`WebComponents`的思想，通过**js沙箱**、**样式隔离**、**元素隔离**、**路由隔离**模拟实现了**ShadowDom**的隔离特性，并结合**CustomElements**将微前端封装成一个类**WebComponent**组件，从而实现微前端的组件化渲染。
 
 后续需要深入学习原理的几个核心点：
 
@@ -26,9 +26,9 @@ micro-app是由京东推出的一款微前端框架，其核心借鉴WebComponen
 
 项目结构
 
-- main-app (基座): 运行在 http://localhost:3000，负责加载子应用。
+- main-app (基座): 运行在 `http://localhost:3000`，负责加载子应用。
 
-- sub-app (子应用): 运行在 http://localhost:3001，被嵌入到主应用中。
+- sub-app (子应用): 运行在 `http://localhost:3001`，被嵌入到主应用中。
 
 
 ### 核心配置文件
@@ -276,7 +276,7 @@ onUnmounted(() => {
 
 ## 5. 路由系用
 
-通过拦截浏览器路由事件以及自定义的location、history，实现了一套虚拟路由系统。
+通过拦截浏览器路由事件以及自定义的`location`、`history`，实现了一套虚拟路由系统。
 
 ## 6. 样式隔离
 
@@ -302,7 +302,7 @@ micro-app[name=xxx] .test {
 
 **方式一 globalAssets**
 
-globalAssets用于设置全局共享资源，它和预加载的思路相同，在浏览器空闲时加载资源并放入缓存。
+`globalAssets`用于设置全局共享资源，它和预加载的思路相同，在浏览器空闲时加载资源并放入缓存。
 
 当子应用加载相同地址的js或css资源时，会直接从缓存中提取数据，从而提升渲染速度。
 
