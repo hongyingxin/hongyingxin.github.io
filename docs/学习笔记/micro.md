@@ -324,3 +324,51 @@ microApp.start({
   }
 })
 ```
+
+## 核心原理
+
+## 与qiankun的对比
+
+| 特性 | qiankun | micro-app |
+| :--- | :--- | :--- |
+| 底层基础 | single-spa | Web Components |
+| 侵入性 | 中 (需要导出生命周期钩子) | 极低 (几乎不改子应用代码) |
+| 渲染容器 | 普通 div | 自定义标签 `<micro-app>` |
+| 隔离模式 | Proxy 沙箱 + 前缀 CSS | Proxy 沙箱 / Iframe 模式 |
+| Vite 支持 | 较弱 (需插件转换，因 Vite 无法 eval) | 极强 (Iframe 模式完美支持) |
+| 多实例支持 | 成熟 | 成熟 |
+
+### 1.为什么是`<micro-app>`标签
+
+`micro-app`与`qiankun`最本质的区别在于采用了`Web Components`的思想.
+
+- Custom Elements：当你调用`microApp.start()`时，它在浏览器中注册了一个自定义标签`<micro-app>`。
+
+- Shadow-like隔离：它并不强制使用原生的`Shadow DOM`（因为Shadow DOM有很多兼容性坑，比如弹窗丢样式），而是通过自己实现的一套类`Shadow DOM`的隔离机制。
+
+  - HTML Loader：它会像浏览器一样去fetch子应用的URL，然后解析出其中的link、script和style
+  - 样式隔离（Scoped CSS）：它会自动给子应用的所有CSS选择器加上`micro-app[name=xxx]`前缀
+  - 元素隔离：子应用内部通过`document.getElementById`拿到的其实是`micro-app`内部的DOM，它拦截了原生的DOM API
+
+### 2.JS沙箱
+
+- 默认模式（Proxy沙箱）：
+
+micro-app为子应用创建一个Proxy对象来代理window。当子应用执行`window.a = 1`时，实际上是改在这个代理对象上。这解决了大多数全局变量冲突，但无法解决像`window.addEventListener`这种原生异步回调的逃逸问题。
+
+- Iframe默认：
+
+这里最彻底的隔离。micro-app会创建一个隐藏的iframe。但它只用这个iframe的window对象（上下文）。
+
+  - 渲染在 DOM 中：子应用的 HTML 依然渲染在主应用的页面 DOM 里。
+  - 逻辑在 Iframe 中：子应用的 JS 逻辑运行在那个隐藏的 iframe 里。
+  - 这就是为什么我们之前要用 window.parent 访问主应用，因为 JS 运行环境确实在另一个窗口里。
+
+### 3. Web Component
+
+Web Components 是一套不同的技术，允许我们创建可重用的定制元素并且在Web应用中使用。它由三项主要技术组成：
+
+- Custom element(自定义元素)：一组JavaScript API，允许定义`custom elements`及其行为
+- Shadow DOM(影子DOM)：一组JavaScript API，允许创建封装的“影子”DOM树，与主文档DOM分开
+- HTML Templates(HTML模板)：HTML 元素，允许创建可重用的模板，包含标记和样式
+ 
