@@ -1,4 +1,4 @@
-# Vue 响应式原理
+# Vue2 响应式原理
 
 ## 思维导图
 ![Excel Image](/public/assets/vue/reactivity_system_1.png)
