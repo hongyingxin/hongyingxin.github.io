@@ -14,3 +14,4 @@
 - [性能优化](/每日一面/性能优化/index.md)
 - [简历](/每日一面/简历/index.md)
 - [渡一面试](/每日一面/渡一面试.md)
+- [TypeScript](/每日一面/TypeScript/index.md)
