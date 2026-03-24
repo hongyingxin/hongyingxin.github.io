@@ -267,3 +267,95 @@
 ## 8. 如何更改组件库中组件的主题
 
 在前端项目中，当需要修改组件库的主题时，一般有几种常见方法：**覆盖 CSS 变量**、**通过配置提供的主题 API**、**使用自定义样式**或 **CSS-in-JS**。
+
+## 9. ChatGPT的对话功能实现，为什么选择SSE协议而非Websocket
+
+ChatGPT的对话功能实现选择 Server-Sent Events（SSE）协议而非WebSocket，主要是基于两者在使用场景和实现复杂度上的差异。
+
+### 1. 数据流单向性
+
+- SSE是单向的：SSE是由服务器主动推送消息到客户端的单向数据协议，客户端只需要接收服务器传来的消息。这种模式适合像ChatGPT这样的应用场景，因为用户请求发送到服务器后，服务器只需要持续向客户端推送生成的对话数据。客户端没有必要频繁地向服务器发送数据
+
+- WebSocket是双向的：WebSocket是全双工通信协议，允许客户端和服务器互相发送消息。虽然WebSocket功能更强大，但ChatGPT场景中并不需要客户端和服务器之间的高频双向通信
+
+### 2. 实现和维护复杂度
+
+- SSE简单易用：SSE只需要服务器推送消息，客户端可以通过标准额EventSource API轻松接收消息，并且基于HTTP协议实现。无需像WebSocket那样进行复杂的连接握手和状态管理。这使得SSE在实现和维护上相对简单
+
+- WebSocket较复杂：WebSocket在建立连接时需要进行协议升级，并且要管理双向通信，增加了复杂度。尤其在某些代理、防火墙等网络环境中，WebSocket的握手和长连接更容易遇到阻碍
+
+### 3. 兼容性和可靠性
+
+- SSE通过HTTP/1.1实现：SSE是基于HTTP/1.1的长连接协议，通常能够更好地穿透代理服务器、防火墙等网络设施。这在需要保证消息推送可靠时非常重要
+
+- WebSocket需要协议升级：WebSocket需要从HTTP升级到WebSocket协议（ws或wss），某些网络环境可能会阻断这种升级过程，从而影响连接的可靠性
+
+### 4. 自动重连和消息重发
+
+- SSE提供自动重连功能：如果网络中断或连接丢失，SSE会自动尝试重连，且服务器可以通过Last-Event-ID实现消息重发，从而保证消息不回丢失
+
+- WebSocket重连复杂：WebSocket需要自行实现重连逻辑和消息重发功能，增加了开发的复杂度和维护成本
+
+### 5. 使用场景的适配性
+
+- SSE适合低频的消息推送：SSE适用于不需要高频交互、消息量适中但要求可靠推送的应用场景，如实时通知、数据流等
+
+- WebSocket适合高频双向通信：WebSocket更适合需要双向、低延迟、高频数据交互的应用场景，比如在线游戏、实时协作工具等
+
+### 6. 资源效率和性能
+
+- SSE使用较少的资源：SSE是通过HTTP长连接传输数据，资源消耗少，尤其是在只需要单向通信的场景中，避免了WebSocket双向通信带来的额外负责
+
+- WebSocket性能较优但资源消耗大：WebSocket在高频双向通信时有更高的性能，但对于像ChatGPT这种场景，其双向通信能力未被充分利用，反而会增加资源开销。
+
+## 10. 前端怎么做错误监控
+
+前端错误监控是确保应用稳定性和用户体验的重要手段。以下是一些常见的前端错误监控方法：
+
+### 1. 捕获JavaScript错误
+
+- 使用`window.onerror`事件：捕获全局JavaScript错误
+
+- 使用`window.addEventListener('error')`：捕获未处理的错误和资源加载错误
+
+- 使用`window.addEventListener('unhandledrejection')`：捕获未处理的Promise错误
+
+```js
+// 捕获 JavaScript 错误
+window.onerror = function (message, source, lineno, colno, error) {
+    console.log('Error captured:', { message, source, lineno, colno, error });
+    // 发送错误信息到服务器
+    sendErrorToServer({ message, source, lineno, colno, error });
+    return true; // 防止浏览器默认处理
+};
+
+// 捕获未处理的 Promise 拒绝
+window.addEventListener('unhandledrejection', function (event) {
+    console.log('Unhandled rejection:', event.reason);
+    // 发送错误信息到服务器
+    sendErrorToServer({ reason: event.reason });
+});
+
+// 发送错误信息到服务器
+function sendErrorToServer(error) {
+    fetch('/log-error', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(error)
+    });
+}
+```
+
+### 2. 使用监控工具
+
+集成专业的前端错误监控工具可以提供更多功能，如自动错误捕获、用户上下文、异常堆栈跟踪等
+
+- Sentry：提供JavaScript错误捕获、性能监控、用户上下文等功能
+
+- Rollbar：实时错误监控和日志记录，支持自定义错误报告
+
+- LogRocket：记录用户会话、错误和性能数据
+
+- New Relic：性能监控和错误捕获，集成各种前端和后端数据
