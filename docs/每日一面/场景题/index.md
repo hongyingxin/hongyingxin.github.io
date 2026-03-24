@@ -359,3 +359,180 @@ function sendErrorToServer(error) {
 - LogRocket：记录用户会话、错误和性能数据
 
 - New Relic：性能监控和错误捕获，集成各种前端和后端数据
+
+## 11. 怎么在前端页面中添加水印
+
+在前端页面中添加水印可以通过以下几种方法实现：
+
+- CSS方法：简单易用，适合静态内容，兼容性好
+
+- Canvas方法：灵活，可以创建动态水印，但涉及到绘图，可能对性能有影响
+
+- 背景图像：简单但不易于调整文本位置和样式
+
+- JavaScript动态生成：灵活可操作DOM，适合动态内容
+
+## 12. React如何实现Vue中的keep-alive功能
+
+在React中实现类似于Vue中keep-alive的功能，可以使用组件状态和React的生命周期方法来控制组件的挂载和卸载。
+
+创建一个KeepAlive组件，用于存储和管理被“缓存”的组件。
+
+```js
+import React, { useState } from 'react';
+
+// KeepAlive 组件
+const KeepAlive = ({ children, name }) => {
+  const [cache, setCache] = useState({});
+
+  // 保存组件
+  const saveCache = () => {
+    setCache((prev) => ({
+      ...prev,
+      [name]: children,
+    }));
+  };
+
+  // 恢复组件
+  const getCachedComponent = () => {
+    return cache[name] || children;
+  };
+
+  // 组件挂载时保存
+  React.useEffect(() => {
+    saveCache();
+  }, [children]);
+
+  return <>{getCachedComponent()}</>;
+};
+
+// 示例用法
+const App = () => {
+  const [activeComponent, setActiveComponent] = useState('ComponentA');
+
+  return (
+    <div>
+      <button onClick={() => setActiveComponent('ComponentA')}>Component A</button>
+      <button onClick={() => setActiveComponent('ComponentB')}>Component B</button>
+
+      <KeepAlive name={activeComponent}>
+        {activeComponent === 'ComponentA' ? <ComponentA /> : <ComponentB />}
+      </KeepAlive>
+    </div>
+  );
+};
+
+const ComponentA = () => <div>Component A</div>;
+const ComponentB = () => <div>Component B</div>;
+
+export default App;
+```
+
+- 状态管理：KeepAlive组件使用一个状态cache来存储被缓存的组件
+
+- 保存和恢复：在组件挂载时保存当前子组件到缓存中；每次渲染时，检查缓存并返回之前的组件，避免重新渲染
+
+
+## 13. 如何设计一个前端日志埋点SDK
+
+实现一个前端日志埋点SDK是为了能够有效地跟踪和记录用户行为、性能数据以及错误日志，帮助开发者进行数据分析和故障排查。一个好的埋点SDK设计需要兼顾灵活性、性能、可扩展性和可靠性。
+
+### 1. 基本功能设计
+
+**核心目标：**
+
+- 用户行为埋点：记录点击、页面访问、表单提交等用户操作
+
+- 性能数据采集：收集页面加载时间、资源请求耗时等性能指标
+
+- 错误日志记录：捕捉和记录JavaScript错误或异常
+
+- 数据上报：将埋点数据发送到服务器或日志管理系统
+
+### 2. SDK的架构设计
+
+#### 2.1 初始化模块
+
+- SDK需要在页面加载时进行初始化，指定相关配置（API服务器地址、环境配置、采样率）
+
+- 配置项可以允许动态定制，比如开关某些类型的日志记录、设置自定义属性等
+
+- 提供全局`init()`方法来接收配置，并完成SDK的初始化
+
+#### 2.2 事件捕获模块
+
+- 自动捕获：通过DOM事件代理机制`（addEventListener）`来监听点击事件、表单提交、页面跳转等，自动采集用户行为
+
+- 自定义埋点：允许开发者通过SDK提供的接口主动记录埋点数据。例如`trackEvent()`方法，用于记录自定义时间及其相关信息
+
+- 性能埋点：利用浏览器额`Performance API`，采集页面加载时间、资源加载时长、DOM渲染时间等数据
+
+- 错误日志捕获：通过监听`window.onerror`、`window.addEventListener('error')`、`window.addEventListener('unhandledrejection')`等事件，自动捕获JavaScript错误和未处理的Promise错误
+
+#### 2.3 数据存储与缓冲模块
+
+- 队列机制：埋点数据不应立即上报服务器，避免频繁发送请求。可以将捕获的数据暂存到队列中，并在达到一定数量或定时触发时统一发送
+
+- 持久化存储：为应对网络波动或断线情况，SDK需要将未成功发送的数据暂时保存在浏览器的LocalStorage或SessionStorage中，并在网络恢复时重新尝试发送
+
+#### 2.4 上报模块
+
+- 数据批量上报： 提供队列机制，每隔一段时间或达到一定数量后，将埋点数据批量上报至后端日志服务器
+
+- 上报策略：支持通过POST或GET请求上报数据。可根据日志量及网络状态选择合适的上报方式
+
+- 上报时机：可以在页面卸载前进行最后一次批量上报，确保在用户离开页面时捕获到的日志不回丢失
+
+- 可靠性：在上报失败时，支持自动重试机制，并记录上报状态
+
+#### 2.5 数据格式化与压缩模块
+
+- 数据格式：通常以JSON格式发送埋点数据，包含时间戳、事件类型、页面信息、用户ID等信息
+
+- 数据压缩：为减小网络传输量，SDK可以将数据压缩后发送
+
+#### 2.6 插件机制
+
+- 可扩展性：SDK可以设计成模块化或插件化，允许用户根据需要加载特定功能模块（如性能监控、错误捕获、页面行为捕获）
+
+- 第三方集成：可以提供API支持与第三方工具集成（如Google Analytics、Mixpanel等），方便开发者将数据上报至不同平台
+
+### 3. SDK API设计
+```js
+// 初始化 SDK，传入配置
+LoggerSDK.init({
+  apiUrl: 'https://logserver.com/track',  // 日志上报的地址
+  appId: 'my-app-id',                     // 应用 ID
+  env: 'production',                      // 当前环境：开发、测试、生产
+  samplingRate: 0.1,                      // 采样率，1 为全量记录，0.1 为 10% 采样
+  autoTrack: true,                        // 是否自动捕获用户行为
+  captureErrors: true                     // 是否捕获 JS 错误
+});
+
+// 自定义事件埋点
+LoggerSDK.trackEvent({
+  event: 'button_click',
+  elementId: 'submit-button',
+  label: '提交按钮点击'
+});
+
+// 手动记录页面加载性能
+LoggerSDK.trackPerformance();
+
+// 手动记录自定义错误
+LoggerSDK.trackError({
+  errorType: 'network',
+  message: 'Failed to fetch data',
+  url: '/api/data'
+});
+```
+
+### 4. 性能优化
+
+- 懒加载SDK：通过一步脚本加载，确保SDK不影响页面的首屏渲染
+
+- 最小化SDK体积：使用Rollup等工具对SDK进行打包压缩，减少加载时间
+
+- 延迟执行：初始化和数据上报都可以异步进行，避免阻塞页面的其它功能
+
+- 采样机制：对埋点进行采样，减少不必要的埋点上报压力
