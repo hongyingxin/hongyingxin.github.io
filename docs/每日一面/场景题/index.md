@@ -536,3 +536,126 @@ LoggerSDK.trackError({
 - 延迟执行：初始化和数据上报都可以异步进行，避免阻塞页面的其它功能
 
 - 采样机制：对埋点进行采样，减少不必要的埋点上报压力
+
+## 14. 如果需要使用JS执行100万个任务，如何保证浏览器不卡顿
+
+
+### 1. 使用分块处理（Chunking）
+
+将100万个任务分成小块，逐块处理，每块处理完成后将控制权交还给浏览器，利用空闲时间继续处理
+
+**实现方式：** setTimeout 或 setInterval
+
+```js
+function processInChunks(tasks, chunkSize = 100) {
+  function processChunk() {
+    const chunk = tasks.splice(0, chunkSize);
+    chunk.forEach(task => task());
+    if (tasks.length > 0) {
+      setTimeout(processChunk, 0); // 让出主线程
+    }
+  }
+  processChunk();
+}
+
+// 示例
+const tasks = Array.from({ length: 1000000 }, (_, i) => () => console.log(i));
+processInChunks(tasks);
+```
+
+### 2. requestIdleCallback
+
+requestIdleCallback 是浏览器提供的一个API，用于在浏览器空闲时执行回调函数。
+
+```js
+function processWithIdleCallback(tasks) {
+  function processChunk(deadline) {
+    while (deadline.timeRemaining() > 0 && tasks.length > 0) {
+      const task = tasks.shift();
+      task();
+    }
+    if (tasks.length > 0) {
+      requestIdleCallback(processChunk);
+    }
+  }
+  requestIdleCallback(processChunk);
+}
+
+// 示例
+const tasks = Array.from({ length: 1000000 }, (_, i) => () => console.log(i));
+processWithIdleCallback(tasks);
+```
+
+### 3. web worker
+
+将复杂任务计算放到 web worker中执行，避免阻塞主线程
+
+主线程代码：
+```js
+const worker = new Worker("worker.js");
+worker.postMessage(1000000); // 发送任务数量
+worker.onmessage = (e) => {
+  console.log(e.data); // 接收 worker 处理结果
+};
+```
+worker脚本
+```js
+onmessage = (e) => {
+  const tasks = e.data;
+  for (let i = 0; i < tasks; i++) {
+    // 模拟任务
+  }
+  postMessage("All tasks completed!");
+};
+```
+
+### 4. 任务调度器
+
+创建自定义任务调度器，根据优先级和剩余时间动态分配任务
+```js
+class Scheduler {
+  constructor() {
+    this.tasks = [];
+  }
+
+  add(task) {
+    this.tasks.push(task);
+  }
+
+  run(chunkSize = 100) {
+    const execute = () => {
+      const chunk = this.tasks.splice(0, chunkSize);
+      chunk.forEach(task => task());
+      if (this.tasks.length > 0) {
+        setTimeout(execute, 0);
+      }
+    };
+    execute();
+  }
+}
+
+// 示例
+const scheduler = new Scheduler();
+for (let i = 0; i < 1000000; i++) {
+  scheduler.add(() => console.log(i));
+}
+scheduler.run();
+```
+
+### 5. 微任务
+
+利用Promise和await将任务且分到微任务队列中，减少对主线程的持续占用。
+```js
+async function processTasks(tasks) {
+  for (let i = 0; i < tasks.length; i++) {
+    tasks[i]();
+    if (i % 100 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0)); // 让出主线程
+    }
+  }
+}
+
+// 示例
+const tasks = Array.from({ length: 1000000 }, (_, i) => () => console.log(i));
+processTasks(tasks);
+```
