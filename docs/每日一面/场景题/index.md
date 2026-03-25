@@ -755,3 +755,179 @@ JS是单线程的，如果主线程在执行其它任务（如渲染、事件回
 3. 使用 canvas API：手动绘制和截图页面的部分内容
 
 4. 使用 navigator.mediaDevices.getDisplayMedia()：这是一个浏览器API，可以捕获整个屏幕或应用窗口的内容，适用于截图或录屏
+
+## 19. 请求失败会弹出一个toast，如何保证批量请求失败时只弹出一个toast
+
+### 1. 使用防抖
+
+防抖可以确保在一定时间内只触发一次toast。如果多个请求在短时间内失败，防抖会将这些失败的请求合并，只弹出一个toast
+
+```js
+let toastTimeout = null;
+
+function showToast(message) {
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+    return
+  }
+  toastTimeout = setTimeout(() => {
+    // 显示toast
+    console.log(message);
+    // 重置定时器
+    toastTimeout = null;
+  }, 300);
+}
+
+function handleRequestFailure() {
+  showToast('请求失败，请稍后重试');
+  showToast('请求失败，请稍后重试');
+  showToast('请求失败，请稍后重试');
+  showToast('请求失败，请稍后重试');
+}
+
+handleRequestFailure()
+```
+
+**总结：** 防抖通过在短时间内合并多次触发，确保只执行一次toast显示逻辑。适用于短时间内多次触发相同事件的场景。
+
+### 2. 使用标志位（Flag）
+
+通过设置一个标志位，确保在第一次请求失败时弹出toast，并在一定时间内忽略后续的失败请求
+
+```js
+let isToastShown = false
+
+function showToast(message) {
+  if (!isToastShown) {
+    // 显示toast
+    console.log(message);
+    // 设置标志位
+    isToastShown = true;
+    // 重置标志位
+    setTimeout(() => {
+      isToastShown = false;
+    }, 300);
+  }
+}
+
+function handleRequestFailure() {
+  showToast('请求失败，请稍后重试');
+  showToast('请求失败，请稍后重试');
+}
+
+handleRequestFailure()
+```
+
+**总结：** 标志位方法通过控制toast的显示状态，确保在一定时间内只弹出一个toast。适用于需要明确控制toast显示频率的场景。
+
+### 3. 批量请求的统一错误处理
+
+如果批量请求是通过`Promise.all`或类似的方式发起的，可以在统一的错误处理逻辑中弹出toast
+
+```js
+function showToast(message) {
+    console.log(message); // 实际显示 toast 的逻辑
+}
+
+async function handleBatchRequests() {
+    const requests = [
+        fetch('/api/request1').catch(() => {}),
+        fetch('/api/request2').catch(() => {}),
+        fetch('/api/request3').catch(() => {}),
+    ];
+
+    try {
+        await Promise.all(requests);
+    } catch (error) {
+        // 统一处理错误
+        showToast("部分请求失败，请稍后重试");
+    }
+}
+
+handleBatchRequests(); // 只会弹出一个 toast
+```
+
+**总结：** 通过统一错误处理，可以在批量请求失败时只弹出一个toast。适用于批量请求的场景，且逻辑清晰。
+
+### 4. 使用队列和单例模式
+
+将toast显示逻辑封装为一个单例，并使用队列管理多个失败请求的消息，确保每次只显示一个toast。
+
+```js
+class ToastManager {
+    constructor() {
+        this.queue = [];
+        this.isShowing = false;
+    }
+
+    showToast(message) {
+        this.queue.push(message);
+        if (!this.isShowing) {
+            this.displayNextToast();
+        }
+    }
+
+    displayNextToast() {
+        if (this.queue.length > 0) {
+            this.isShowing = true;
+            const message = this.queue.shift();
+            console.log(message); // 实际显示 toast 的逻辑
+
+            // 模拟 toast 消失后的回调
+            setTimeout(() => {
+                this.isShowing = false;
+                this.displayNextToast();
+            }, 3000); // 假设 toast 显示 3 秒
+        }
+    }
+}
+
+const toastManager = new ToastManager();
+
+// 模拟批量请求失败
+function handleFailedRequests() {
+    toastManager.showToast("请求失败，请稍后重试");
+    toastManager.showToast("请求失败，请稍后重试");
+    toastManager.showToast("请求失败，请稍后重试");
+}
+
+handleFailedRequests(); // 会依次弹出 toast，但不会同时弹出多个
+```
+
+**总结：** 通过队列和单例模式，可以确保toast依次显示，避免同时弹出多个toast。适用于需要按顺序显示消息的场景。
+
+## 20. 说说你对 package.json 中配置项的了解
+
+package.json 是 Node.js 和前端项目中的核心配置文件，定义了项目的元数据、依赖、脚本、配置等。
+
+- name：项目名称，用于标识项目，必须是唯一的。如果发布到npm，名称将成为包的标识符
+
+- version：项目的版本号，表示项目的版本，通常遵循 SemVer 语义化版本规范
+
+- description：项目的简短描述，提供有关项目的简要说明
+
+- main：项目的入口文件，指定Node.js 模块的主文件，默认是index.js
+
+- scripts：定义可以通过`npm run <script>`命令运行的脚本，用于自动化任务
+
+- dependencies：项目运行时所需的依赖模块，列出项目在生产环境中需要的npm包。安装项目时，这些依赖会被下载和安装
+
+- devDependencies：项目开发时所需的依赖模块，列出项目在开发和测试环境中需要的npm包，如编译器、测试框架等
+
+- peerDependencies：项目与其他包的兼容版本范围，指定项目所兼容的其他包的版本范围，用于插件和库的兼容性
+
+- engines：指定项目需要的Node.js版本或其他运行环境，确保项目在特定版本的Node.js上运行，避免不兼容问题
+
+- license：项目的许可证类型，如MIT、Apache-2.0等
+
+- author：项目作者的名称
+
+- contributors：项目的贡献者列表，用于记录项目的主要贡献者
+
+- repository：项目的代码仓库信息，指定项目的Git仓库URL
+
+- keywords：项目相关额关键词
+
+- files：要包含在发布包中的文件列表，限制发布到npm的文件，排除不需要的文件
+
+- browserlist：指定项目支持的浏览器范围，用于工具（babel、postcss等）进行兼容性处理
