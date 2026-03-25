@@ -659,3 +659,35 @@ async function processTasks(tasks) {
 const tasks = Array.from({ length: 1000000 }, (_, i) => () => console.log(i));
 processTasks(tasks);
 ```
+
+## 15. 前端实现倒计时为什么会有误差？如何解决
+
+前端倒计时会产生误差的主要原因是 setTimeout 和 setInterval 的执行机制以及 JavaScript 单线程的特性。
+
+### 产生的原因
+
+1. setTimeout 和 setInterval 的执行机制
+
+- setTimeout(fn, delay)并不会在精准的 delay 毫秒后执行 fn，而是至少 delay 毫秒后执行
+
+- setInterval(fn, delay)也是如此，它的下一次执行时间是当前任务执行完后才开始计算 delay，所以可能比预期时间更长。
+
+2. JavaScript 是单线程的
+
+JS是单线程的，如果主线程在执行其它任务（如渲染、事件回调等），定时器回调可能会被延迟执行
+
+3. 浏览器的最小事件间隔限制
+
+大多数浏览器最小的定时器间隔是4ms（在非活跃标签页或后台页面，可能会被调整到1s甚至更长）
+
+4. 设备性能与负载
+
+如果设备负载高，主线程被占用，定时器可能会延迟执行，导致倒计时出现误差。
+
+### 解决方案
+
+1. 基于`Data.now()`或 `performance.now()`进行校正：记录开始事件，每次执行倒计时时，计算与实际过去时间的偏差，并动态调整，误差不会随时间累计，适合高精度倒计时
+
+2. 使用`requestAnimationFrame`代替`setInterval`，`requestAnimationFrame`具有更高的执行精度，并且能在页面可见时保持稳定
+
+3. 服务端同步时间
