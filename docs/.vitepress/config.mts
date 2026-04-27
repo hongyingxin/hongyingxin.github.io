@@ -78,6 +78,7 @@ export default defineConfig({
           { text: 'Nest', link: '/学习笔记/Nest/' },
           { text: '性能优化', link: '/学习笔记/性能优化/' },
           { text: '工程化', link: '/学习笔记/工程化/' },
+          { text: '运维', link: '/学习笔记/运维/' },
         ]
       },
     ],
