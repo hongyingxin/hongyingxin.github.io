@@ -814,6 +814,22 @@ React 的合并更新（Batching）是性能优化的核心。React 不会因为
 
 useState 返回一个数组而不是对象，主要是为了简化状态管理和更新过程，使得状态的获取和更新更为直观和一致。这个设计决定让 React 的函数式组件更加简洁、易于维护，并减少了潜在的复杂性。
 
+**原因**
+
+数组解构允许自由命名返回的变量，而对象解构要求变量名必须与属性名一致。
+
+React Hooks的核心机制依赖于调用顺序，数组返回固定顺序的值比较直观：第一个值是当前状态，第二个值是更新函数。
+
+```js
+const [name, setName] = useState('Alice');
+const [age, setAge] = useState(25);
+
+// 假设 useState 返回的是 { state, setState }
+const { state: name, setState: setName } = useState('Alice');
+const { state: age, setState: setAge } = useState(25);
+```
+
+
 主要是解构赋值的问题
 
 ## useEffect
