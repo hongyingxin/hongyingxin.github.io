@@ -253,3 +253,18 @@ function FiberNode(tag, pendingProps, key) {
 ### 整个应用树的代码描述
 
 整个应用在代码的最顶层，由一个叫`FiberRootNode`的构造函数来描述。它不负责具体的业务，它只负责整个组件树的根部。
+
+源码`ReactFiberRoot.js`的逻辑如下
+
+```js
+function FiberRootNode(containerInfo) {
+  // 整个应用的宿主环境信息（比如 DOM 中的 #root 节点）
+  this.containerInfo = containerInfo; 
+  
+  // 核心：指向整个组件树的根 Fiber 节点（RootFiber）
+  this.current = null; 
+  
+  // 其他全局调度信息，如未处理的任务优先级、过期时间等
+  this.finishedWork = null;
+}
+```
