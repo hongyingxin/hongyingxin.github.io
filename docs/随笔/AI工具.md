@@ -382,3 +382,13 @@ description: 当用户提到接口、API、swagger、api-docs、对接、传参.
 | 按需应用 | `alwaysApply: false` + 关键词 `description` | AI 根据你的话判断是否加载 |
 | 打开文件触发 | `alwaysApply: false` + `globs: src/api/**` | 编辑 api 文件时自动带上 |
 | 手动引用 | 聊天里 `@api-docs.mdc` | 你主动 @ 时一定带上 |
+
+## 实战效果
+
+![实战效果](/public/assets/随笔/api-docs-1.png)
+
+如上图所示，AI 在编码过程中，会根据规则和 Skill 来执行相应的命令，并输出结果。
+
+然后会总结摘要，列出修改的点。
+
+虽然这种方式跟直接给AI修改对比差不多，但行为预期是可控的。
