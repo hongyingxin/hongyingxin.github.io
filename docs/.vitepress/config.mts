@@ -79,6 +79,7 @@ export default defineConfig({
           { text: '性能优化', link: '/学习笔记/性能优化/' },
           { text: '工程化', link: '/学习笔记/工程化/' },
           { text: '运维', link: '/学习笔记/运维/' },
+          { text: '微前端', link: '/学习笔记/微前端/' },
         ]
       },
     ],
