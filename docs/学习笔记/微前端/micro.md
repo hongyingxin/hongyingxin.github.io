@@ -262,6 +262,18 @@ onUnmounted(() => {
 </script>
 ```
 
+
+**方式3:绑定监听函数**
+
+绑定监听函数需要通过`name`指定子应用，此值和`<micro-app>`的`name`属性一致。
+
+```js
+import microApp from '@micro-zoe/micro-app'
+
+// 绑定监听函数给子应用 my-app
+microApp.addDataListener(appName: string, dataListener: (data: Object) => any, autoTrigger?: boolean)
+```
+
 - 主应用 -> 子应用:
 
   - 在主应用界面点击 “向子应用发送消息” 按钮。
