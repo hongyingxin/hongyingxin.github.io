@@ -20,6 +20,77 @@ Cursor 中常见的 AI 交互方式主要有三类：
 - 想理解代码或问一个局部问题，用 Chat。
 - 要完成一个跨文件功能、修复 Bug 或重构，用 Agent。
 
+### 1.1 Tab 补全 Demo
+
+Tab 补全适合在写代码过程中做轻量续写。
+
+例如你先写一段注释：
+
+```ts
+// 计算用户年龄
+```
+
+Cursor 可能会根据上下文自动补全：
+
+```ts
+function calculateAge(birthday: string): number {
+  const birthDate = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+}
+```
+
+这个场景下不需要打开 Agent，也不需要把需求描述得很复杂，直接按 `Tab` 接受即可。
+
+### 1.2 Chat Demo
+
+Chat 更适合问答、解释和局部生成。
+
+示例：
+
+```text
+解释一下 @src/utils/auth.ts 里的 getToken 方法在做什么。
+```
+
+或者：
+
+```text
+帮我写一个正则表达式，用来校验邮箱格式，并说明边界情况。
+```
+
+Chat 的重点不是“让 AI 直接改完整个项目”，而是帮你理解、分析、生成小片段。
+
+### 1.3 Agent Demo
+
+Agent 适合端到端任务，因为它可以读文件、改文件、跑命令。
+
+示例：
+
+```text
+帮我给 User 模型加一个 avatar 字段，数据库迁移、后端接口、前端展示都一起处理。
+```
+
+Agent 理想的执行过程：
+
+```text
+1. 读取数据库 schema
+2. 修改 User 模型
+3. 生成 migration
+4. 修改后端用户资料接口
+5. 修改前端用户资料组件
+6. 运行类型检查和测试
+7. 汇总改动结果
+```
+
+这种跨文件任务如果只用 Chat，很容易遗漏上下文；用 Agent 更合适。
+
 ## 2. 上下文控制
 
 AI 编程质量很大程度取决于上下文质量。
@@ -91,6 +162,94 @@ Rules 常见类型：
 
 除了 `.cursor/rules/`，也可以使用 `AGENTS.md` 描述项目如何启动、目录结构、环境变量名称和协作约定。
 
+### 3.1 Rules 文件 Demo
+
+一个通用规则文件可以这样写：
+
+```markdown
+---
+description: 项目通用开发规范
+globs:
+alwaysApply: true
+---
+
+# 项目规范
+
+## 技术栈
+
+- 语言：TypeScript strict mode
+- 包管理器：pnpm
+- 测试框架：Vitest
+
+## 代码规范
+
+- 不使用 `any` 类型
+- 函数需要有明确的返回类型
+- 错误处理使用自定义 Error 类，不使用裸字符串
+- 提交信息格式使用 `feat(scope): 描述` 或 `fix(scope): 描述`
+
+## 验证命令
+
+- 类型检查：`pnpm tsc --noEmit`
+- 单元测试：`pnpm test`
+- 代码检查：`pnpm lint`
+```
+
+前端专项规则可以这样写：
+
+```markdown
+---
+description: 前端 React 组件规范
+globs: src/components/**/*.tsx, src/pages/**/*.tsx
+alwaysApply: false
+---
+
+# 前端组件规范
+
+- 使用函数组件和 Hooks，不使用 Class 组件
+- 简单状态使用 `useState`
+- 跨组件状态使用 Zustand
+- 样式方案使用 Tailwind CSS
+- 组件文件中可以就近放置类型定义
+```
+
+### 3.2 AGENTS.md Demo
+
+如果项目不想拆很多 `.mdc` 文件，也可以先用一个 `AGENTS.md` 描述协作约定：
+
+````markdown
+# AGENTS.md
+
+## 启动方式
+
+```bash
+pnpm install
+pnpm dev
+```
+
+## 环境变量
+
+需要在 `.env.local` 中配置以下变量：
+
+- `DATABASE_URL`
+- `NEXTAUTH_SECRET`
+
+不要把真实密钥写进文档或对话。
+
+## 目录结构
+
+- `app/`：Next.js App Router 页面
+- `lib/`：工具函数和服务
+- `components/`：共享 UI 组件
+- `prisma/`：数据库 schema
+
+## 协作约定
+
+- 修改后先运行类型检查
+- 新增业务逻辑需要补充测试
+- 不要随意引入新依赖
+````
+
 ## 4. Skills：给 AI 加能力包
 
 Rules 更像“约束”，Skills 更像“工作流能力”。
@@ -110,6 +269,50 @@ Rules 更像“约束”，Skills 更像“工作流能力”。
 - `systematic-debugging`：系统化排查 Bug。
 - `subagent-driven-development`：把独立任务分派给子 Agent。
 - `verification-before-completion`：完成前必须跑验证命令。
+
+### 4.1 Skills 调用 Demo
+
+如果你希望 AI 按某个固定流程工作，可以直接在对话里说明：
+
+```text
+按照 SDD 流程帮我实现“用户头像上传”功能。
+先不要写代码，先产出 Proposal、Spec、Design 和 Tasks。
+```
+
+理想情况下，AI 不会直接开始改文件，而是先进入规划阶段：
+
+```text
+1. 读取现有用户模块代码
+2. 输出 Proposal，说明本次变更范围
+3. 输出 Spec，描述头像上传行为
+4. 输出 Design，说明前后端和存储方案
+5. 输出 Tasks，拆成可执行任务
+6. 等你确认后再进入实现
+```
+
+### 4.2 OpenSpec 作为 Skill 的 Demo
+
+OpenSpec 可以作为 Cursor 的 Skill 或命令工作流使用。
+
+例如在 Agent 对话中输入：
+
+```text
+/opsx:propose add-user-avatar
+```
+
+AI 会围绕 `add-user-avatar` 创建一次独立变更：
+
+```text
+openspec/changes/add-user-avatar/
+├── proposal.md
+├── design.md
+├── tasks.md
+└── specs/
+    └── user-profile/
+        └── spec.md
+```
+
+这样每次变更都有自己的上下文，不会把所有需求都混在一个对话里。
 
 ## 5. 为什么需要 SDD
 
@@ -231,6 +434,221 @@ openspec/
 - `specs/` 表示当前系统已经生效的规格。
 - `changes/` 表示正在进行的变更。
 - 每个变更目录中包含提案、设计、任务和增量规格。
+
+### 7.1 安装和初始化 Demo
+
+OpenSpec 通常需要先安装并初始化。
+
+```bash
+# 全局安装
+npm install -g @fission-ai/openspec@latest
+
+# 进入项目目录
+cd your-project
+
+# 初始化 OpenSpec
+openspec init
+```
+
+初始化后，项目中会多出 `openspec/` 目录，用来保存当前规格和后续变更。
+
+### 7.2 从 0 到 1 创建一个变更
+
+假设要给项目增加“暗色模式”，可以在 Cursor Agent 中输入：
+
+```text
+/opsx:propose add-dark-mode
+```
+
+AI 应该生成类似结果：
+
+```text
+openspec/changes/add-dark-mode/
+├── proposal.md
+├── design.md
+├── tasks.md
+└── specs/
+    └── ui/
+        └── spec.md
+```
+
+### 7.3 Proposal 示例
+
+`proposal.md` 重点说明为什么做、做什么、不做什么。
+
+```markdown
+# Proposal: Add Dark Mode
+
+## Intent
+
+用户反馈夜间使用页面刺眼，需要增加暗色模式，降低长时间使用时的视觉疲劳。
+
+## Scope
+
+In scope:
+
+- 设置页面增加主题切换入口
+- 支持亮色和暗色主题切换
+- 检测系统主题偏好
+- 本地保存用户主题偏好
+
+Out of scope:
+
+- 自定义主题色
+- 每个页面单独配置主题
+- 后台同步多端主题偏好
+
+## Approach
+
+使用 CSS 自定义属性实现主题变量切换，使用 React Context 管理主题状态，并通过 `localStorage` 持久化用户选择。
+```
+
+### 7.4 Spec 示例
+
+Spec 只描述行为，不描述实现细节。
+
+```markdown
+# Delta for UI
+
+## ADDED Requirements
+
+### Requirement: Theme Selection
+
+系统 SHALL 允许用户在亮色主题和暗色主题之间切换。
+
+#### Scenario: 手动切换主题
+
+- GIVEN 用户位于任意页面
+- WHEN 用户点击主题切换按钮
+- THEN 页面主题 SHALL 立即切换
+- AND 用户选择 SHALL 保存到本地
+- AND 用户刷新页面后 SHALL 保持上次选择
+
+#### Scenario: 跟随系统主题
+
+- GIVEN 用户没有保存过主题偏好
+- WHEN 应用首次加载
+- THEN 系统 SHALL 使用操作系统的主题偏好
+```
+
+这里的关键词有明确含义：
+
+- `SHALL` / `MUST`：必须实现。
+- `SHOULD`：推荐实现，但允许有例外。
+- `MAY`：可选实现。
+- `GIVEN` / `WHEN` / `THEN`：描述可验证场景。
+
+### 7.5 Design 示例
+
+Design 说明技术方案和架构决策。
+
+```markdown
+# Design: Add Dark Mode
+
+## Architecture Decisions
+
+### Decision: Use React Context
+
+选择 React Context 管理主题状态，而不是引入 Redux。
+
+原因：
+
+- 主题只是简单的全局状态
+- 不涉及复杂状态流转
+- 避免引入额外依赖
+
+### Decision: Use CSS Custom Properties
+
+选择 CSS 变量管理颜色，而不是 CSS-in-JS。
+
+原因：
+
+- 与现有样式兼容
+- 无运行时样式生成成本
+- 浏览器原生支持
+
+## File Changes
+
+- `src/contexts/ThemeContext.tsx`：新增主题上下文
+- `src/components/ThemeToggle.tsx`：新增主题切换组件
+- `src/styles/globals.css`：增加亮色和暗色变量
+- `src/App.tsx`：接入 ThemeProvider
+
+## Risks
+
+- 如果已有组件使用硬编码颜色，需要逐步替换为 CSS 变量
+- 如果服务端渲染页面，需要注意初始主题和客户端主题不一致导致闪烁
+```
+
+### 7.6 Tasks 示例
+
+`tasks.md` 应该拆成可以逐项勾选的小任务。
+
+```markdown
+# Tasks
+
+## 1. Theme Infrastructure
+
+- [ ] 1.1 创建 `ThemeContext`
+- [ ] 1.2 支持 `light` / `dark` 两种主题状态
+- [ ] 1.3 从 `localStorage` 读取用户主题偏好
+- [ ] 1.4 没有用户偏好时读取系统主题
+
+## 2. Styling
+
+- [ ] 2.1 在 `globals.css` 中定义亮色主题变量
+- [ ] 2.2 在 `globals.css` 中定义暗色主题变量
+- [ ] 2.3 将核心页面颜色替换为 CSS 变量
+
+## 3. UI
+
+- [ ] 3.1 创建 `ThemeToggle` 组件
+- [ ] 3.2 在设置页面接入主题切换组件
+- [ ] 3.3 增加切换后的视觉反馈
+
+## 4. Verification
+
+- [ ] 4.1 验证刷新页面后主题保持不变
+- [ ] 4.2 验证首次访问时跟随系统主题
+- [ ] 4.3 运行类型检查和测试
+```
+
+### 7.7 Apply / Verify / Archive Demo
+
+确认 Proposal、Spec、Design、Tasks 都没问题后，再进入实现：
+
+```text
+/opsx:apply
+```
+
+AI 理想的执行日志类似：
+
+```text
+Working on 1.1: 创建 ThemeContext...
+✓ 1.1 Complete
+
+Working on 1.2: 支持 light / dark 两种主题状态...
+✓ 1.2 Complete
+
+Working on 2.1: 定义亮色主题变量...
+✓ 2.1 Complete
+
+All tasks complete.
+```
+
+实现完成后再验证：
+
+```text
+/opsx:verify
+```
+
+验证通过后归档：
+
+```text
+/opsx:archive
+```
+
+归档后，Delta Specs 会合入 `openspec/specs/`，变更目录会进入 archive，作为历史记录保留。
 
 ## 8. Delta Specs
 
