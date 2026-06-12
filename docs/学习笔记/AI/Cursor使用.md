@@ -19,3 +19,5 @@ Cursor Agent 在全仓库搜索上下文时超时或卡住，任务被中断。
 cursorignore 是一个用于忽略文件的工具，它可以帮助你忽略一些文件，这些文件不会被Cursor索引。
 
 跟 .gitignore 类似。作用是缩小索引和搜索范围，通常最有效。
+
+相关文档：[cursor grep功能](https://cursor.com/cn/changelog/2-1)
