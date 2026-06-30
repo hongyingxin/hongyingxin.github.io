@@ -220,6 +220,129 @@ Workbox 的功能模块化非常清晰，主要解决以下几个痛点：
 
 如果你在离线时发送了一个 POST 请求（比如发帖或点赞），workbox-background-sync 会把请求排队，并在用户恢复网络连接时自动重新发送，确保数据不丢失。
 
+### 更新
+
+在 Workbox 生态下，Server Worker 的更新机制本质上依旧遵循浏览器的标准生命周期，但 Workbox 通过自动化构建和运行时的机制，极大地简化了资产比对和激活控制的流程。
+
+Workbox 的更新和激活动态主要可以分为以下四个阶段：
+
+1. 触发检查
+
+浏览器会自动检查 Server Worker 的更新。但需要注意的是：浏览器检查更新是去请求 sw.js 文件，如果设置了强缓存，浏览器会直接从缓存中读取，不会去请求服务器。
+
+2. 资产对比与文件哈希
+
+Workbox 最核心的能力之一就是 预缓存 机制。
+
+构建时生成清单：当你运行打包命令（vite-plugin-pwa）时，Workbox会扫描打包产物，并生产一份包含文件路径和内容哈希的清单，自动注入到 sw.js 中。
+
+```js
+// 自动生成的预缓存清单
+workbox.precaching.precacheAndRoute([
+  { url: '/index.html', revision: 'a1b2c3d4' },
+  { url: '/assets/index.js', revision: 'e5f6g7h8' }
+]);
+```
+
+当我们修改后重新打包，文件的 hash 值就会发生变化，浏览器检测到 sw.js 字节不同，就会立刻判定 Server Worker 有更新，并下载新脚本，触发 install 事件。
+
+3. 安装与等待阶段
+
+新 SW 下载后，会进入 install （安装）阶段。
+
+Workbox 接管 install 事件，重新下载资源文件，当所有新资产下载完毕后，新 SW 会进入 installed (已安装)状态，并在后台等待（Waiting）。因为此时旧的 SW 还在控制着当前打开的页面。为了防止由于“新 SW 引入了新结构，而旧页面还在运行”导致页面崩溃，浏览器默认会让新 SW 处于等待状态，直到用户关闭所有相关标签页后，旧 SW 被销毁，新 SW 才会正式激活。
+
+4. 激活与覆盖更新
+
+让新 SW 在后台等，前端检测到等待状态后，弹窗提示用户手动控制刷新。
+
+前端代码监听 sw.js 的生命周期状态
+
+```js
+// 注册 Service Worker 时
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then((reg) => {
+    // 监听等待状态的 SW
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        // 当新 SW 下载完并进入 waiting 状态时
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          // 💡 触发前端弹窗：提醒用户“检测到新版本，请点此刷新更新”
+          showUpdateToast(() => {
+            // 用户点击刷新后，向新 SW 发送跳过等待的信号
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          });
+        }
+      });
+    });
+  });
+
+  // 监听控制权更替，一旦新 SW 接管，立刻刷新页面
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+}
+```
+
+SW 内部接收信号
+
+```js
+// sw.js 内部
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+```
+总结
+
+Workbox 在构建时通过扫描资产，将带有内容 Hash 的预缓存清单注入到 sw.js 中。当代码变动导致 sw.js 字节改变时，浏览器就会触发更新。
+
+在运行时的 install 阶段，Workbox 会增量下载变更的资产。为了确保线上安全更新，我们在项目中没有采用激进的 skipWaiting，而是在主线程监听 SW 的等待状态，当新 SW 进入 waiting 状态时，前端弹出提示框引导用户确认，用户点击后通过 postMessage 触发 SKIP_WAITING 并结合 controllerchange 事件实现页面的无缝静默刷新。
+
+### 五种缓存策略
+
+1. Stale-While-Revalidate（过时同步 / 边用边刷）
+
+工作原理： 当浏览器发起请求时，Workbox 会同时去查缓存和走网络。但它会优先把本地现有的旧缓存立刻返回给用户（实现秒开），如果网络请求成功拿到了新数据，SW 会在后台默默更新本地缓存。
+
+因果结果： 用户这次看到的是旧数据，但下一次访问时，看到的就是最新数据。
+
+适用场景： 时效性要求不高，但对加载速度极其敏感的资产。如网站首页 HTML、新闻列表、社交媒体 Feeds、用户的头像等。
+
+2. Cache First
+
+工作原理： 浏览器发起请求，Workbox 率先去查缓存。
+
+  如果缓存有：直接返回，完全不走网络（0ms 响应）。
+
+  如果缓存没有：再去走真实网络请求，拿到数据后存入缓存，并返回给用户。
+
+适用场景： 体积大、基本不怎么变动的静态资产。如第三方字体文件、核心 UI 图片、不带 Hash 的公共基础 JS 库。
+
+3. Network First
+
+工作原理： 浏览器发起请求，Workbox 会优先尝试走网络获取最新数据。
+
+  如果网络通畅：获取新数据，展示给用户，并静默更新本地缓存。
+
+  如果网络断开或超时（离线/弱网）：立刻进入降级机制，去本地缓存里捞出上一次的数据展示给用户。
+
+适用场景： 对数据实时性要求极高，但又需要做离线兜底的场景。如商品的价格列表、用户的账户余额、订单状态、以及各种核心业务 API。
+
+4. Network Only
+
+工作原理： 比较直接。Service Worker 拿到请求后不做任何拦截和缓存操作，直接转发给真实网络。网络断了，请求就直接失败。
+
+适用场景： 绝对不能缓存的数据。如非 GET 请求（POST 提交表单、DELETE、PUT 操作）、非同源的支付接口、或者带有敏感隐私信息的实时金融数据。
+
+5. Cache Only
+
+工作原理： 只从缓存里读数据。如果缓存里没有，直接报 404 错误，绝对不走网络。
+
+适用场景： 配合 Pre-caching（预缓存） 使用。比如你在构建时就已经把一套完整的离线皮肤包、或者本地离线地图数据强制写入了缓存，运行时只需通过 Cache Only 去读取这批现成的资产。
+
 ## PWA
 
 PWA (Progressive Web App)，全称“渐进式 Web 应用”。把网页包装成一个APP。
