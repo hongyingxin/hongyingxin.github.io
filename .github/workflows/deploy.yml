@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           export TZ='Asia/Shanghai'
-          rm -rf node_modules package-lock.json
+          # rm -rf node_modules package-lock.json
           npm install
           npm install @rollup/rollup-linux-x64-gnu
       
