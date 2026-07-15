@@ -23,11 +23,16 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          # cache: npm
+          cache: pnpm
       
       - name: Set Timezone
         run: |
@@ -36,16 +41,12 @@ jobs:
           date
       
       - name: Install dependencies
-        run: |
-          export TZ='Asia/Shanghai'
-          # rm -rf node_modules package-lock.json
-          npm install
-          npm install @rollup/rollup-linux-x64-gnu
+        run: pnpm install --frozen-lockfile
       
       - name: Build with VitePress
         run: |
           export TZ='Asia/Shanghai'
-          npm run docs:build
+          pnpm run docs:build
           touch docs/.vitepress/dist/.nojekyll
       
       - name: Upload artifact
