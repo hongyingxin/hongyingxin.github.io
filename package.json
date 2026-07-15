@@ -20,6 +20,7 @@
     "vue": "^3.4.21"
   },
   "dependencies": {
-    "@sugarat/theme": "^0.5.3"
+    "@sugarat/theme": "^0.5.3",
+    "pagefind": "^1.5.2"
   }
 }

@@ -7,8 +7,10 @@ import { defineConfig, getThemeConfig } from '@sugarat/theme/node'
 
 // 主题独有配置，所有配置项，详见文档: https://theme.sugarat.top/
 const blogThemeConfig = getThemeConfig({
-    // 开启搜索
-  // search: true,
+  // pnpm 环境下 npx 可能找不到 pagefind，显式指定索引命令
+  search: {
+    indexingCommand: 'pnpm exec pagefind --site docs/.vitepress/dist --exclude-selectors "div.aside, a.header-anchor"',
+  },
   // 关闭深色模式过渡动画
   darkTransition: false,
   // 友情链接
