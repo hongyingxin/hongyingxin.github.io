@@ -1,11 +1,13 @@
 // import { defineConfig } from 'vitepress'
 
+import fs from 'node:fs'
+
 // 导入生成配置工具方法
 import { defineConfig, getThemeConfig } from '@sugarat/theme/node'
 
 // 主题独有配置，所有配置项，详见文档: https://theme.sugarat.top/
 const blogThemeConfig = getThemeConfig({
-  // 开启搜索
+    // 开启搜索
   // search: true,
   // 关闭深色模式过渡动画
   darkTransition: false,
@@ -30,6 +32,16 @@ export default defineConfig({
   
   // 忽略死链接检查
   ignoreDeadLinks: false,
+
+  // 为 @vitejs/plugin-vue 提供 fs，编译 node_modules 内 .vue 的 TypeScript 类型时需要
+  vue: {
+    script: {
+      fs: {
+        fileExists: (file: string) => fs.existsSync(file),
+        readFile: (file: string) => fs.readFileSync(file, 'utf-8'),
+      },
+    },
+  },
   
   // 主题配置
   themeConfig: {
@@ -102,6 +114,9 @@ export default defineConfig({
   vite: {
     server: {
       port: 10086,
+    },
+    ssr: {
+      noExternal: ['@sugarat/theme', 'vitepress-plugin-pagefind'],
     },
     // 配置静态资源处理
     assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
