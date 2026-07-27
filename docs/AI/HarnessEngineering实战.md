@@ -6,9 +6,9 @@ Harness 的核心公式很简单 `Agent = Model + Harness`。
 
 模型负责「能做什么」，Harness 负责「在什么环境里、按什么规则、被怎样验证地去做」。
 
-**现状：** 你已有 OpenSpec 工作流（spec、skills、verify），这是 Harness 的规范内核；缺入口地图、机械约束、自动化反馈、熵管理。
+**现状：** 已有 OpenSpec 工作流（spec、skills、verify），这是 Harness 的规范内核；缺入口地图、机械约束、自动化反馈、熵管理。
 
-**核心思路：** 不是另起炉灶，而是在 OpenSpec 外面包一层 Agent 操作环境——AGENTS.md 导航、lint 约束、hook/CI 验证、verify 闭环。
+**核心思路：** 在 OpenSpec 外面包一层 Agent 操作环境——AGENTS.md 导航、lint 约束、hook/CI 验证、verify 闭环。
 
 **与 OpenSpec 的关系：** OpenSpec = 需求与工作流；Harness = 让 Agent 可靠执行 OpenSpec 的环境。
 
@@ -126,7 +126,7 @@ Agent 行动
        │ 通过
        ▼
 ┌─────────────┐
-│  /opsx:verify│  ← 你已有这个 skill！
+│  /opsx:verify│  ← 已有这个 skill！
 └──────┬──────┘
        │
        ▼
@@ -176,7 +176,7 @@ OpenSpec 不应被 Harness 替代，而应成为 Harness 的 核心子系统：
 
 工作流：
 
-- 1. /opsx:explore — 探索（你现在就在做）
+- 1. /opsx:explore — 探索
 - 2./opsx:new — 创建变更 + spec delta
 - 3./opsx:apply — Agent 实施（Harness 约束其行为）
 - 4.Hook 自动跑 test/lint — 实时反馈
