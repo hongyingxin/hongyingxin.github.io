@@ -34,6 +34,14 @@ top: 1
 ![个人博客](/assets/project/hongyingxin.github.io_.png)
 
 ---
+## 蓝湖MCP <Badge text="积极维护" type="tip" />
+lanhu-node，基于 MCP（Model Context Protocol）将蓝湖设计协作平台接入 Cursor 等 AI IDE，支持 Axure 原型解析、UI 设计稿还原及多格式/多倍率切图下载。
+
+目前未部署，支持拉取代码本地部署，后面考虑部署成 HTTP 形式
+
+- **代码地址**：[https://github.com/hongyingxin/my-lanhu-mcp](https://github.com/hongyingxin/my-lanhu-mcp)
+
+---
 
 ## [AI助手](https://my-ai-tool.hongyingxin.com/) <Badge text="积极维护" type="tip" />
 集成了多种 AI 能力的助手工具，支持对话、代码生成等功能。
