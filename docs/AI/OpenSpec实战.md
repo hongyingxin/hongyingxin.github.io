@@ -54,8 +54,8 @@ openSpec 内有引导式入门教程，通过命令`/opsx:onboard`，完整走�
 
 | 步骤 | 做了什么 |
 | --- | --- |
-| Explore | 分析现状，决定用原生 http |
-| New | 创建 add-health-endpoint 变更 |
+| Explore | 分析需求，这里适合需求不明确的情况下进行讨论，需求明确可以直接进入下一步 |
+| New | 创建 一次 变更 |
 | Proposal | 明确 Why / What / Scope |
 | Specs | 定义 WHEN/THEN 可测试需求 |
 | Design | 决定技术方案 |
