@@ -363,6 +363,117 @@ PWA (Progressive Web App)，全称“渐进式 Web 应用”。把网页包装�
 
 - 推送通知：像原生 App 一样给用户发消息。
 
+## 消息推送的实现
+
+前端（Push Service 推送服务）主要基于 Push API 和 Service Worker 技术，让网页在关闭或未激活时也能接收服务器发来的通知。
+
+核心工作流程：
+
+1. 注册 Service Worker：前端在页面中注册一个后台脚本（Service Worker），负责监听和显示推送事件。
+
+```js
+const registration = await navigator.serviceWorker.register('/sw.js');
+```
+
+Service Worker 有一个很重要的特点：页面关掉以后，它仍然可以被浏览器在需要的时候临时唤醒。
+
+2. 请求通知权限：调用浏览器的 Notification API 请求用户授权，允许网页发送系统通知。
+
+```js
+const permission = await Notification.requestPermission();
+```
+
+3. 获取订阅对象：通过`registration.pushManager.subscrib()`向浏览器的推送服务商（Push Service）注册，生成包含`endpoint`和加密密钥的`PushSubscription`对象。
+
+```js
+const subscription = await registration.pushManager.subscribe({
+  userVisibleOnly: true,
+  applicationServerKey: publicKey
+});
+```
+
+浏览器会返回一个类似json格式的对象，包含了`endpoint`和`keys`。
+
+```js
+{
+  endpoint: "https://fcm.googleapis.com/fcm/send/xxxx",
+  keys: {
+    p256dh: "...",
+    auth: "..."
+  }
+}
+```
+
+4. 发送订阅到后端：前端将获取到的订阅消息（Endpoint）通过 API 发送并保存到你自己的业务服务器中
+
+```js
+await fetch('/api/push/subscribe', {
+  method: 'POST',
+  body: JSON.stringify(subscription)
+});
+```
+
+5. 服务端生成推送消息：后端根据订阅对象生成推送消息，并发送给浏览器的推送服务商（Push Service）。
+
+```js
+webpush.sendNotification(
+  subscription,
+  JSON.stringify({
+    title: '新消息',
+    body: '你收到了一条新消息'
+  })
+);
+```
+
+6. 浏览器接收与展示：当服务器触发推送时，Service Worker 的 push 事件被唤醒，解析数据并调用`self.registration.showNotification()`展示通知。
+
+```js
+// sw.js
+
+self.addEventListener('push', event => {
+  const data = event.data.json();
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body
+    })
+  );
+});
+```
+
+整体流程如下：
+
+```text
+你的前端页面
+   ↓ 注册 Service Worker
+Service Worker
+   ↓ subscribe()
+PushManager
+   ↓
+浏览器 Push Service
+（Chrome/Edge 通常走 FCM）
+   ↑
+你的业务服务器
+```
+
+当真正推送时：
+
+```text
+业务服务器
+    ↓ HTTP 请求
+浏览器 Push Service
+    ↓ 找到对应浏览器
+浏览器
+    ↓ 唤醒 Service Worker
+push 事件
+    ↓
+self.registration.showNotification()
+    ↓
+系统通知
+```
+
+一个比较容易混淆的地方是：Service Worker 并不是 WebSocket，WebSocket 浏览器通过长连接服务器，页面需要一直保存连接，但是页面关闭后，一般连接也就断了。而 Service Worker 多了一层 Push Service，不需要保持一直在线状态。
+
 ## 拓展
 
 ### Service Worker 和 Web Worker 的区别
