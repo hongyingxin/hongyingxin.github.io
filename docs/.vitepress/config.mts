@@ -50,21 +50,22 @@ export default defineConfig({
     // 导航栏
     nav: [
       { text: '个人作品展示', link: '/project.md' },
-      {
-        text: '线上作品',
-        items: [
-          { text: '个人博客', link: 'https://hongyingxin.github.io/' },
-          { text: 'AI助手', link: 'https://my-ai-tool.hongyingxin.com/'},
-          { text: '电影网站', link: 'https://my-nuxy-movie.vercel.app/'},
-          { text: '翻译工具', link: 'https://translator.hongyingxin.com/'},
-          { text: 'React后管', link: 'https://react-admin-inky.vercel.app'},
-          { text: 'Jenkins', link: 'https://jenkins.hongyingxin.com/'}
-        ]
-      },
+      { text: 'AI', link: '/AI/' },
+      // {
+      //   text: '线上作品',
+      //   items: [
+      //     { text: '个人博客', link: 'https://hongyingxin.github.io/' },
+      //     { text: 'AI助手', link: 'https://my-ai-tool.hongyingxin.com/'},
+      //     { text: '电影网站', link: 'https://my-nuxy-movie.vercel.app/'},
+      //     { text: '翻译工具', link: 'https://translator.hongyingxin.com/'},
+      //     { text: 'React后管', link: 'https://react-admin-inky.vercel.app'},
+      //     { text: 'Jenkins', link: 'https://jenkins.hongyingxin.com/'}
+      //   ]
+      // },
       { text: '随笔', 
         items: [
-          { text: '组件库', link: '/components/index.md' },
-          { text: 'Git', link: '/git/index.md' },
+          // { text: '组件库', link: '/components/index.md' },
+          // { text: 'Git', link: '/git/index.md' },
           { text: '按时间', link: '/按时间/index.md' },
         ]
       },
@@ -95,6 +96,7 @@ export default defineConfig({
           { text: '工程化', link: '/学习笔记/工程化/' },
           { text: '运维', link: '/学习笔记/运维/' },
           { text: '微前端', link: '/学习笔记/微前端/' },
+          { text: '测试', link: '/学习笔记/测试/' },
         ]
       },
     ],
