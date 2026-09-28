@@ -444,7 +444,7 @@ self.addEventListener('push', event => {
 整体流程如下：
 
 ```text
-你的前端页面
+前端页面
    ↓ 注册 Service Worker
 Service Worker
    ↓ subscribe()
@@ -453,7 +453,7 @@ PushManager
 浏览器 Push Service
 （Chrome/Edge 通常走 FCM）
    ↑
-你的业务服务器
+业务服务器
 ```
 
 当真正推送时：
