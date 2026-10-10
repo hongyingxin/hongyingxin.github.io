@@ -1,3 +1,9 @@
+---
+readingTime: false
+date: false
+top: 3
+---
+
 # Vite 单路由独立构建机制
 
 在常规的 Vue/Vite 单页应用中，所有页面通常共享一个 HTML 入口：
