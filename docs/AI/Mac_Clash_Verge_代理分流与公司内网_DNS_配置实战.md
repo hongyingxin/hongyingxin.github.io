@@ -1,7 +1,3 @@
----
-hidden: true
----
-
 # Mac Clash Verge 代理分流与公司内网 DNS 配置实战
 
 整理日期：2026-11-02（Asia/Shanghai）  
