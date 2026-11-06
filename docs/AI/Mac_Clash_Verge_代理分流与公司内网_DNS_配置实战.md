@@ -1,5 +1,7 @@
 # Mac Clash Verge 代理分流与公司内网 DNS 配置实战
 
+> AI 生成说明：本文由 AI 辅助整理与撰写。
+
 整理日期：2026-11-02（Asia/Shanghai）  
 文件格式：Markdown · UTF-8  
 适用环境：macOS、Clash Verge Rev；本次读取的应用版本为 2.5.2。

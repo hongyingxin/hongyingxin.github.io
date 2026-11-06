@@ -1,5 +1,7 @@
 # 在 Mac 上配置 Codex：从 Switchyard 公司 API 到 CC Switch 双模式切换
 
+> AI 生成说明：本文由 AI 辅助整理与撰写。
+
 如果公司提供了统一的 AI API 网关，我们可以让 Codex 桌面应用使用公司 Key 处理工作任务，同时保留个人 ChatGPT 账号处理自己的业务。
 
 本文记录一套已经验证可用的配置流程：先接入 Switchyard，再使用 CC Switch 管理个人和公司两种模式。
