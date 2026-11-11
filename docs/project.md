@@ -13,6 +13,7 @@ top: 1
 目前正在寻求新的前端开发工作机会，Base广州。
 
 - **工作经验**：8年+ 前端开发经验（2018年至今）
+- **擅长领域**：8年纯语聊开发经验，擅长各种 H5 营销活动开发和语聊房、视频房等房类产品开发，接入过声网、云信、腾讯云、即构等RTC SDK。
 - **核心技术栈**：
   - **Vue 生态**：Vue2/3, Nuxt3, Element Plus, Pinia
   - **React 生态**：React 18, Next.js, Ant Design, Redux/Zustand
