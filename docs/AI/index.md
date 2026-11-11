@@ -26,6 +26,9 @@
 
 ### 实践与工具
 
+- [我的 H5 活动 AI 开发工作流](/AI/工作流.md)
+- [Codex：Switchyard 与 CC Switch 配置指南](/AI/Codex-Switchyard-CC-Switch配置指南.md)
+- [Mac Clash Verge 代理分流与公司内网 DNS 配置实战](/AI/Mac_Clash_Verge_代理分流与公司内网_DNS_配置实战.md)
 - [AI Coding：如何选择自测框架](/AI/AI-Coding如何选择自测框架.md)
 - [AI Coding 实战：为 Vue H5 接入 Playwright 自测](/AI/AI-Coding实战为Vue-H5接入Playwright自测.md)
 - [AI Coding：内置浏览器与 Playwright 自测怎么选](/AI/AI-Coding内置浏览器与Playwright自测对比.md)
