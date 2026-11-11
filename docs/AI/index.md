@@ -26,6 +26,9 @@
 
 ### 实践与工具
 
+- [AI Coding：如何选择自测框架](/AI/AI-Coding如何选择自测框架.md)
+- [AI Coding 实战：为 Vue H5 接入 Playwright 自测](/AI/AI-Coding实战为Vue-H5接入Playwright自测.md)
+- [AI Coding：内置浏览器与 Playwright 自测怎么选](/AI/AI-Coding内置浏览器与Playwright自测对比.md)
 - [schema](/AI/schema.md)
 - [ai-api-docs](/AI/ai-api-docs.md)
 - [ai-i18n](/AI/ai-i18n.md)
