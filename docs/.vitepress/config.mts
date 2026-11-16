@@ -66,6 +66,7 @@ export default defineConfig({
         items: [
           // { text: '组件库', link: '/components/index.md' },
           // { text: 'Git', link: '/git/index.md' },
+          { text: '日常工作', link: '/日常工作/' },
           { text: '按时间', link: '/按时间/index.md' },
         ]
       },
