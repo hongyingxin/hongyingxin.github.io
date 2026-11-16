@@ -10,3 +10,4 @@ hidden: true
 4. [云服务](云服务.md)
 5. [qshell](qshell.md)
 6. [shell](shell.md)
+7. [Jenkins 钉钉机器人](jenkins机器人.md)

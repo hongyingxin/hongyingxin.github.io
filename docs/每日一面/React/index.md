@@ -1,5 +1,10 @@
 # React 高频面试题
 
+## 相关文章
+
+- [重新整理的 React 面试题](./new.md)
+- [合成事件](./合成事件.md)
+
 ## JSX
 JSX是JavaScript语法扩展，可以让你在JavaScript文件中书写类似HTML的标签。
 

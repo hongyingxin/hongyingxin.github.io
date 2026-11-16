@@ -66,12 +66,14 @@ export default defineConfig({
         items: [
           // { text: '组件库', link: '/components/index.md' },
           // { text: 'Git', link: '/git/index.md' },
+          { text: '技术随笔', link: '/随笔/' },
           { text: '日常工作', link: '/日常工作/' },
           { text: '按时间', link: '/按时间/index.md' },
         ]
       },
       { text: '每日一面', 
         items: [
+          { text: '首页', link: '/每日一面/' },
           { text: 'HTML', link: '/每日一面/HTML/' },
           { text: 'CSS', link: '/每日一面/CSS/' },
           { text: 'JavaScript', link: '/每日一面/JavaScript/' },
@@ -79,6 +81,11 @@ export default defineConfig({
           { text: 'React', link: '/每日一面/React/' },
           { text: '网络', link: '/每日一面/网络/' },
           { text: '工程化', link: '/每日一面/工程化/' },
+          { text: '性能优化', link: '/每日一面/性能优化/' },
+          { text: 'TypeScript', link: '/每日一面/TypeScript/' },
+          { text: '场景题', link: '/每日一面/场景题/' },
+          { text: '简历', link: '/每日一面/简历/' },
+          { text: '专项复习', link: '/专项复习/' },
           
         ]
       },
