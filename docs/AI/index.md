@@ -24,6 +24,7 @@
 - [MCP 传输机制](/AI/MCP传输机制对比.md)
 - [飞书MCP](/AI/飞书MCP.md)
 - [飞书 CLI 与 MCP 接入实战](/AI/飞书CLI与MCP接入实战.md)
+- [Codex 接入自建 Jira 实战](/AI/Codex接入自建Jira实战.md)
 
 ### 实践与工具
 
