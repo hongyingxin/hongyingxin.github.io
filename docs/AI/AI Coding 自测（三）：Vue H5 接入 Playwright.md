@@ -461,7 +461,7 @@ pnpm exec playwright test firstRecharge.real.spec.js --project=real
 后端错误或凭证失效请单独报告，不通过修改 Mock 数据掩盖问题。
 ```
 
-Skill 的目录位置与调用方式随 Agent 产品而异；迁移到其他工具时，应按对应工具的项目 Skill 约定放置。文章中的文件仅为模板，没有写入实际 H5 项目。
+Skill 的目录位置与调用方式随 Agent 产品而异；迁移到其他工具时，应按对应工具的项目 Skill 约定放置。使用前需在项目中创建对应文件并调整配置。
 
 ### 报告要区分验证范围
 

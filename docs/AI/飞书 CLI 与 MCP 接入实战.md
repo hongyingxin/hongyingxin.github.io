@@ -1,6 +1,5 @@
 # 飞书 CLI 与 MCP 接入实战
 
-> AI 生成说明：本文由 AI 辅助整理，结合官方文档与本机实际操作编写。
 > 验证时间：2026 年 11 月 18 日，
 > CLI 版本：1.0.100。
 
@@ -229,7 +228,7 @@ lark-cli docs +fetch \
   --keyword '接口|验收'
 ```
 
-`--scope outline` 成功，只能说明目录读取成功，不能写成“已读取全文”。文档中嵌入的多维表格、电子表格、图片等资源，也可能需要对应技能和额外权限。
+`--scope outline` 成功，只能说明目录读取成功，不能写成“目录读取成功不代表全文读取成功”。文档中嵌入的多维表格、电子表格、图片等资源，也可能需要对应技能和额外权限。
 
 `lark-doc` 负责正文读取与编辑；`lark-wiki` 主要负责知识空间、成员和节点结构管理。
 
@@ -644,5 +643,3 @@ Codex、Cursor 不一定与交互式终端加载完全相同的 Shell 配置。�
 - [飞书 CLI 官方仓库](https://github.com/larksuite/cli)
 - [飞书 OpenAPI MCP 官方仓库与配置示例](https://github.com/larksuite/lark-openapi-mcp)
 - [OpenAPI MCP 工具列表](https://github.com/larksuite/lark-openapi-mcp/blob/main/docs/reference/tool-presets/tools-en.md)
-
-整理来源包括「飞书MCP读取聊天」中的方案讨论，以及后续 Mac 安装与读取验证。历史聊天中的命令建议未直接视为成功证据，本文以实际运行结果和官方用法为准。
