@@ -1,4 +1,4 @@
-# 在 Mac 上配置 Codex：从 Switchyard 公司 API 到 CC Switch 双模式切换
+# Codex：Switchyard 与 CC Switch 配置
 
 > AI 生成说明：本文由 AI 辅助整理与撰写。
 

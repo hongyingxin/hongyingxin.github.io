@@ -1,6 +1,6 @@
-# AI Coding 实战：为 Vue H5 接入 Playwright 自测
+# AI Coding 自测（三）：Vue H5 接入 Playwright
 
-上一篇[如何选择自测框架](/AI/AI-Coding如何选择自测框架.md)介绍了不同工具的用途。这一篇结合一个实际的 Vue H5 活动项目，说明如何让 AI 编写并执行浏览器自测。
+前两篇[框架选型](</AI/AI Coding 自测（一）：框架选型.md>)与[内置浏览器和 Playwright 对比](</AI/AI Coding 自测（二）：内置浏览器与 Playwright 对比.md>)介绍了不同工具的用途。这一篇结合一个实际的 Vue H5 活动项目，说明如何让 AI 编写并执行浏览器自测。
 
 项目采用 Vue 3、Vite、Vant 和 Axios，使用 Hash 路由，包含组队充值、财富狩猎、首充和国庆活动等页面。下面选择首充活动作为示例。
 

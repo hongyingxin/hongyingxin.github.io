@@ -1,4 +1,4 @@
-# Codex 接入自建 Jira 实战：从官方插件到本地 MCP
+# Codex 接入自建 Jira
 
 > AI 生成说明：本文由 AI 辅助整理，结合官方文档与本机实际接入过程编写。
 > 验证时间：2026 年 11 月 19 日。
@@ -389,5 +389,5 @@ Codex → 内置浏览器中的已登录页面 → 筛选列表、打开工单�
 - [官方 Browser 文档](https://learn.chatgpt.com/docs/browser)
 - [Apple：如果系统请求访问 Mac 上的钥匙串](https://support.apple.com/zh-cn/guide/keychain-access/kyca1243/mac)
 - [uv 安装指南](https://docs.astral.sh/uv/getting-started/installation/)
-- [相关笔记：飞书 CLI 与 MCP 接入实战](/AI/飞书CLI与MCP接入实战.md)
-- [相关笔记：内置浏览器与 Playwright 自测怎么选](/AI/AI-Coding内置浏览器与Playwright自测对比.md)
+- [相关笔记：飞书 CLI 与 MCP 接入实战](</AI/飞书 CLI 与 MCP 接入实战.md>)
+- [相关笔记：AI Coding 自测（二）：内置浏览器与 Playwright 对比](</AI/AI Coding 自测（二）：内置浏览器与 Playwright 对比.md>)

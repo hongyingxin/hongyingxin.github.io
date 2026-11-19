@@ -4,4 +4,4 @@
 
 ## 项目实践
 
-- [用 Coding Agent 迁移47个后台页面，我学到了什么](./AI-Coding实战-47个后台页面迁移复盘.md)
+- [Coding Agent 后台迁移复盘](<./Coding Agent 后台迁移复盘.md>)

@@ -1,6 +1,6 @@
-# AI Coding：内置浏览器与 Playwright 自测怎么选
+# AI Coding 自测（二）：内置浏览器与 Playwright 对比
 
-在前面的[框架选型](/AI/AI-Coding如何选择自测框架.md)与[H5 实战](/AI/AI-Coding实战为Vue-H5接入Playwright自测.md)中，我们讨论了如何让 AI 编写并执行 Playwright 用例。
+上一篇[框架选型](</AI/AI Coding 自测（一）：框架选型.md>)介绍了不同工具的用途。这一篇对比内置浏览器与 Playwright，具体接入过程见下一篇[Vue H5 实战](</AI/AI Coding 自测（三）：Vue H5 接入 Playwright.md>)。
 
 但 Codex 已经能直接操作浏览器：打开页面、点击按钮、填写表单、观察结果。既然如此，是否还需要给项目安装 Playwright、维护 spec？
 
@@ -159,5 +159,5 @@ Playwright Mock：
 ## 参考与相关笔记
 
 - [官方 Browser 文档](https://learn.chatgpt.com/docs/browser)
-- [AI Coding：如何选择自测框架](/AI/AI-Coding如何选择自测框架.md)
-- [AI Coding 实战：为 Vue H5 接入 Playwright 自测](/AI/AI-Coding实战为Vue-H5接入Playwright自测.md)
+- [AI Coding 自测（一）：框架选型](</AI/AI Coding 自测（一）：框架选型.md>)
+- [AI Coding 自测（三）：Vue H5 接入 Playwright](</AI/AI Coding 自测（三）：Vue H5 接入 Playwright.md>)

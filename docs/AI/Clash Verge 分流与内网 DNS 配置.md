@@ -1,4 +1,4 @@
-# Mac Clash Verge 代理分流与公司内网 DNS 配置实战
+# Clash Verge 分流与内网 DNS 配置
 
 > AI 生成说明：本文由 AI 辅助整理与撰写。
 
