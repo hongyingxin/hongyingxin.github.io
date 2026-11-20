@@ -28,6 +28,7 @@
 
 ### 实践与工具
 
+- [Codex 自动生成周报](</AI/Codex 自动生成周报.md>)
 - [我的 H5 活动 AI 开发工作流](/AI/工作流.md)
 - [Codex：Switchyard 与 CC Switch 配置](</AI/Codex：Switchyard 与 CC Switch 配置.md>)
 - [Clash Verge 分流与内网 DNS 配置](</AI/Clash Verge 分流与内网 DNS 配置.md>)
